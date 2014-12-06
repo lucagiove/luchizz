@@ -1,0 +1,80 @@
+#!/usr/bin/env python
+# -*- coding: utf-8 -*-
+#
+#  Copyright (C) 2014 Luca Giovenzana <luca@giovenzana.org>
+#
+#  This program is free software: you can redistribute it and/or modify
+#  it under the terms of the GNU General Public License as published by
+#  the Free Software Foundation, either version 3 of the License, or
+#  (at your option) any later version.
+#
+#  This program is distributed in the hope that it will be useful,
+#  but WITHOUT ANY WARRANTY; without even the implied warranty of
+#  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+#  GNU General Public License for more details.
+#
+#  You should have received a copy of the GNU General Public License
+#  along with this program.  If not, see <http://www.gnu.org/licenses/>.
+
+import socket
+from fabric.api import env, sudo, put, run
+from fabric.contrib.files import sed, comment, append, uncomment
+from fabtools import system, user
+
+
+def set_hostname(hostname):
+    sed('/etc/hosts', '127\.0\.1\.1.*', '127\.0\.1\.1\t'+hostname,
+        use_sudo=True)
+    system.set_hostname(hostname)
+
+
+def set_main_user(olduser, newuser):
+
+    script = """#!/bin/bash
+sed -i.bak -r -e 's/%s/%s/g' "$(echo /etc/passwd)"
+sed -i.bak -r -e 's/%s/%s/g' "$(echo /etc/shadow)"
+sed -i.bak -r -e 's/%s/%s/g' "$(echo /etc/group)"
+sed -i.bak -r -e 's/%s/%s/g' "$(echo /etc/gshadow)"
+mv /home/%s /home/%s
+"""
+
+
+def set_console():
+    put('./files/ttyS0.conf', '/etc/init/', use_sudo=True)
+    sudo('chown root: /etc/init/ttyS0.conf')
+    sudo('chmod 644 /etc/init/ttyS0.conf')
+
+
+def set_authkey(user):
+    user.add_ssh_public_key(user, '~/.ssh/id_rsa.pub')
+# FIXME CHANGE DEFAULT PASSWORD
+
+
+def improve_shell():
+    put('./files/luchizz.sh', '/etc/profile.d/')
+
+
+def setup_shorewall_one_interface():
+    sudo('apt-get install shorewall')
+    sudo('cp /usr/share/doc/shorewall/examples/one-interface/* /etc/shorewall/')
+    rules = """SSH(ACCEPT)         net             $FW"""
+    append('/etc/shorewall/rules', rules)
+    sed('/etc/default/shorewall', 'startup=0', 'startup=1', use_sudo=True)
+    sudo('/sbin/shorewall check')
+    try:
+        sudo('/sbin/shorewall restart')
+    except socket.error:
+        pass
+
+
+def setup_denyhosts():
+    # FIXME not in ubuntu 10.04??
+    sudo('apt-get install denyhosts')
+
+
+def setup_etckeeper():
+    sudo('apt-get install git etckeeper -y')
+    comment('/etc/etckeeper/etckeeper.conf', 'VCS="bzr"', use_sudo=True)
+    uncomment('/etc/etckeeper/etckeeper.conf', 'VCS="git"', use_sudo=True)
+    sudo('etckeeper init')
+    sudo('etckeeper commit -m "Initial commit."')

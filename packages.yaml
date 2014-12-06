@@ -1,0 +1,4 @@
+base = [vim, htop, deborphan, ntp, wget, curl, screen, git, etckeeper, acpid, tree]
+net = [ethtool, iproute, iputils-arping, iftop, iptraf, iperf, bmon, tcpdump, nmap, netcat, whois, traceroute]
+physical_server = [sysv-rc-conf, hdparm, hddtemp, lm-sensors, lshw, hwinfo]
+
