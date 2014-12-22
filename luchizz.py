@@ -16,10 +16,14 @@
 #  You should have received a copy of the GNU General Public License
 #  along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
+#   ``set`` prefix changes configurations
+#   ``setup`` install and configure services
+#   ``luchizz`` add nice customizations
+
 import socket
-from fabric.api import env, sudo, put, run
+from fabric.api import sudo, put
 from fabric.contrib.files import sed, comment, append, uncomment
-from fabtools import system, user
+from fabtools import system
 
 
 def set_hostname(hostname):
@@ -27,36 +31,35 @@ def set_hostname(hostname):
         use_sudo=True)
     system.set_hostname(hostname)
 
+# FIXME run the command
+# ~def set_main_user(olduser, newuser):
+# ~
+    # ~script = """#!/bin/bash
+# ~sed -i.bak -r -e 's/%s/%s/g' "$(echo /etc/passwd)"
+# ~sed -i.bak -r -e 's/%s/%s/g' "$(echo /etc/shadow)"
+# ~sed -i.bak -r -e 's/%s/%s/g' "$(echo /etc/group)"
+# ~sed -i.bak -r -e 's/%s/%s/g' "$(echo /etc/gshadow)"
+# ~mv /home/%s /home/%s
+# ~"""
 
-def set_main_user(olduser, newuser):
-
-    script = """#!/bin/bash
-sed -i.bak -r -e 's/%s/%s/g' "$(echo /etc/passwd)"
-sed -i.bak -r -e 's/%s/%s/g' "$(echo /etc/shadow)"
-sed -i.bak -r -e 's/%s/%s/g' "$(echo /etc/group)"
-sed -i.bak -r -e 's/%s/%s/g' "$(echo /etc/gshadow)"
-mv /home/%s /home/%s
-"""
-
-
-def set_console():
+def set_serial_console():
     put('./files/ttyS0.conf', '/etc/init/', use_sudo=True)
     sudo('chown root: /etc/init/ttyS0.conf')
     sudo('chmod 644 /etc/init/ttyS0.conf')
 
-
-def set_authkey(user):
-    user.add_ssh_public_key(user, '~/.ssh/id_rsa.pub')
 # FIXME CHANGE DEFAULT PASSWORD
+# ~def set_authkey(user):
+    # ~user.add_ssh_public_key(user, '~/.ssh/id_rsa.pub')
 
 
-def improve_shell():
+def luchizz_shell():
     put('./files/luchizz.sh', '/etc/profile.d/')
 
 
 def setup_shorewall_one_interface():
     sudo('apt-get install shorewall')
-    sudo('cp /usr/share/doc/shorewall/examples/one-interface/* /etc/shorewall/')
+    sudo('cp /usr/share/doc/shorewall/examples/one-interface/* '
+         '/etc/shorewall/')
     rules = """SSH(ACCEPT)         net             $FW"""
     append('/etc/shorewall/rules', rules)
     sed('/etc/default/shorewall', 'startup=0', 'startup=1', use_sudo=True)
