@@ -1,4 +1,4 @@
-ù#!/usr/bin/env python
+#!/usr/bin/env python
 # -*- coding: utf-8 -*-
 #
 #  Copyright (C) 2014 Luca Giovenzana <luca@giovenzana.org>
@@ -25,7 +25,12 @@ from fabric.api import sudo, put
 from fabric.contrib.files import sed, comment, append, uncomment
 from fabtools import system
 
+__author__ = "Luca Giovenzana <luca@giovenzana.org>"
+__date__ = "2014-12-22"
+__version__ = "0.0.2"
+
 # TODO Install packages
+
 
 def set_hostname(hostname):
     sed('/etc/hosts', '127\.0\.1\.1.*', '127\.0\.1\.1\t'+hostname,
@@ -43,6 +48,7 @@ def set_hostname(hostname):
 # ~mv /home/%s /home/%s
 # ~"""
 
+
 def set_serial_console():
     put('./files/ttyS0.conf', '/etc/init/', use_sudo=True)
     sudo('chown root: /etc/init/ttyS0.conf')
@@ -54,13 +60,24 @@ def set_serial_console():
 
 
 def luchizz_shell():
-    put('./files/luchizz.sh', '/etc/profile.d/')
+    files = put('./files/profile/*', '/etc/profile.d/', use_sudp=True)
+    for f in files:
+        sudo('chown root: {}'.format(f))
+        sudo('chmod 644 {}'.format(f))
     # alternate mappings for "page up" and "page down" to search the history
     # uncomment the following lines in /etc/inputrc
     # "\e[5~": history-search-backward
     # "\e[6~": history-search-forward
     uncomment('/etc/inputrc', 'history-search-forward', use_sudo=True)
     uncomment('/etc/inputrc', 'history-search-backward', use_sudo=True)
+
+
+def luchizz_scripts():
+
+    scripts = put('./files/scripts/*', '/usr/local/bin', use_sudo=True)
+    for s in scripts:
+        sudo('chown root: {}'.format(s))
+        sudo('chmod 755 {}'.format(s))
 
 
 def setup_shorewall_one_interface():
