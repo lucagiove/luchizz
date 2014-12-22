@@ -61,7 +61,7 @@ def setup_shorewall_one_interface():
     sudo('cp /usr/share/doc/shorewall/examples/one-interface/* '
          '/etc/shorewall/')
     rules = """SSH(ACCEPT)         net             $FW"""
-    append('/etc/shorewall/rules', rules)
+    append('/etc/shorewall/rules', rules, use_sudo=True)
     sed('/etc/default/shorewall', 'startup=0', 'startup=1', use_sudo=True)
     sudo('/sbin/shorewall check')
     try:
