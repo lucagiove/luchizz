@@ -1,0 +1,72 @@
+#!/usr/bin/python
+#        +-----------------------------------------------------------------------------+
+#        | Endian Firewall                                                             |
+#        +-----------------------------------------------------------------------------+
+#        | Copyright (c) 2005-2008 Endian                                              |
+#        |         Endian GmbH/Srl                                                     |
+#        |         Bergweg 41 Via Monte                                                |
+#        |         39057 Eppan/Appiano                                                 |
+#        |         ITALIEN/ITALIA                                                      |
+#        |         info@endian.it                                                      |
+#        |                                                                             |
+#        | This program is free software; you can redistribute it and/or               |
+#        | modify it under the terms of the GNU General Public License                 |
+#        | as published by the Free Software Foundation; either version 2              |
+#        | of the License, or (at your option) any later version.                      |
+#        |                                                                             |
+#        | This program is distributed in the hope that it will be useful,             |
+#        | but WITHOUT ANY WARRANTY; without even the implied warranty of              |
+#        | MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the               |
+#        | GNU General Public License for more details.                                |
+#        |                                                                             |
+#        | You should have received a copy of the GNU General Public License           |
+#        | along with this program; if not, write to the Free Software                 |
+#        | Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA. |
+#        | http://www.fsf.org/                                                         |
+#        +-----------------------------------------------------------------------------+
+#
+# Author: Luca Giovenzana <luca@endian.com>
+
+# to do:
+# - debug msgs
+# - object programming
+# - check other interesting curl options
+
+import sys
+import pycurl
+import StringIO
+import re
+from optparse import OptionParser
+
+parser = OptionParser()
+parser.add_option("-i", "--interface", dest="device", default=None,
+                  help="Specify the local interface, or ip address, you want to use as outgoing network interface (ex: detectip -i eth0)")
+
+(options, args) = parser.parse_args()
+
+def readip():
+	# initialize the libcurl object and the string where to write the page
+	curl = pycurl.Curl()
+	page = StringIO.StringIO()
+	if options.device:
+		curl.setopt(pycurl.INTERFACE, options.device)
+	curl.setopt(pycurl.URL, "http://checkip.dyndns.org")
+	# return an error after 5 http redirection
+	curl.setopt(pycurl.MAXREDIRS, 5)
+	page = StringIO.StringIO()
+	# define where the libcurl output will be written
+	curl.setopt(pycurl.WRITEFUNCTION, page.write)
+	# start the curl process and handle errors
+	try:	
+		curl.perform()
+		# extract the ip from the page
+		ip = re.search('([\d]*\.[\d]*\.[\d]*\.[\d]*)', page.getvalue())
+		ip = ip.group(0)
+		return ip
+	except pycurl.error:
+		err = curl.errstr()
+		print "ERROR: " + err
+		
+out = readip()
+if out:
+	print out
