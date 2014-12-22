@@ -37,10 +37,10 @@ fi
 
 # set huge history size
 HISTSIZE=100000
-HISTFILE=10000
 
 # enable z - jump around module
 if [ -f /usr/local/bin/z.sh ]; then
     . /usr/local/bin/z.sh
 fi
 
+export PYTHONPATH=$PYTHONPATH:/home/luca/src/endian/octopus/src/

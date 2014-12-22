@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+ù#!/usr/bin/env python
 # -*- coding: utf-8 -*-
 #
 #  Copyright (C) 2014 Luca Giovenzana <luca@giovenzana.org>
@@ -25,6 +25,7 @@ from fabric.api import sudo, put
 from fabric.contrib.files import sed, comment, append, uncomment
 from fabtools import system
 
+# TODO Install packages
 
 def set_hostname(hostname):
     sed('/etc/hosts', '127\.0\.1\.1.*', '127\.0\.1\.1\t'+hostname,
@@ -54,6 +55,12 @@ def set_serial_console():
 
 def luchizz_shell():
     put('./files/luchizz.sh', '/etc/profile.d/')
+    # alternate mappings for "page up" and "page down" to search the history
+    # uncomment the following lines in /etc/inputrc
+    # "\e[5~": history-search-backward
+    # "\e[6~": history-search-forward
+    uncomment('/etc/inputrc', 'history-search-forward', use_sudo=True)
+    uncomment('/etc/inputrc', 'history-search-backward', use_sudo=True)
 
 
 def setup_shorewall_one_interface():
