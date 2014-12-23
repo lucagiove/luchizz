@@ -23,13 +23,16 @@
 import socket
 from fabric.api import sudo, put
 from fabric.contrib.files import sed, comment, append, uncomment
+# TODO maybe we can get rid of this dependency to reduce extra libs
 from fabtools import system
 
 __author__ = "Luca Giovenzana <luca@giovenzana.org>"
-__date__ = "2014-12-22"
-__version__ = "0.0.2"
+__date__ = "2014-12-23"
+__version__ = "0.0.3"
 
 # TODO Install packages
+# TODO Change default password
+# TODO Verify sshd security
 
 
 def set_hostname(hostname):
@@ -54,9 +57,9 @@ def set_serial_console():
     sudo('chown root: /etc/init/ttyS0.conf')
     sudo('chmod 644 /etc/init/ttyS0.conf')
 
-# FIXME CHANGE DEFAULT PASSWORD
-# ~def set_authkey(user):
-    # ~user.add_ssh_public_key(user, '~/.ssh/id_rsa.pub')
+
+def set_authkey(user):
+    user.add_ssh_public_key(user, '~/.ssh/id_rsa.pub')
 
 
 def luchizz_shell():
@@ -73,11 +76,12 @@ def luchizz_shell():
 
 
 def luchizz_scripts():
-
     scripts = put('./files/scripts/*', '/usr/local/bin', use_sudo=True)
     for s in scripts:
         sudo('chown root: {}'.format(s))
         sudo('chmod 755 {}'.format(s))
+    # Restoring no execute permissions for z.sh that doesn't require them
+    sudo('chmod 644 /usr/local/bin/z.sh')
 
 
 def setup_shorewall_one_interface():
@@ -95,7 +99,7 @@ def setup_shorewall_one_interface():
 
 
 def setup_denyhosts():
-    # FIXME not in ubuntu 10.04??
+    # FIXME not in ubuntu 14.04??
     sudo('apt-get install denyhosts')
 
 

@@ -1,6 +1,5 @@
-# TODO automatically change colours depending on the user
 if [ "`id -u`" -eq 0 ]; then
-    PS1='${debian_chroot:+($debian_chroot)}\[\033[01;31m\]\u@\h\[\033[00m\]:\[\033[01;34m\]\w\[\033[00m\]\# '
+    PS1='${debian_chroot:+($debian_chroot)}\[\033[01;31m\]\u@\h\[\033[00m\]:\[\033[01;34m\]\w\[\033[00m\]# '
 else
     PS1='${debian_chroot:+($debian_chroot)}\[\033[01;37m\]\u@\h\[\033[00m\]:\[\033[01;34m\]\w\[\033[00m\]\$ '
 fi
@@ -42,5 +41,3 @@ HISTSIZE=100000
 if [ -f /usr/local/bin/z.sh ]; then
     . /usr/local/bin/z.sh
 fi
-
-export PYTHONPATH=$PYTHONPATH:/home/luca/src/endian/octopus/src/
