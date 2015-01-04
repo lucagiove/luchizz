@@ -1,4 +1,5 @@
 base:
+    less
     vim
     htop
     deborphan
