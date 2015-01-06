@@ -33,5 +33,4 @@ physical_server:
     hddtemp
     lm-sensors
     lshw
-    hwinfo
 
