@@ -25,7 +25,8 @@ import time
 import socket
 from optparse import OptionParser
 from fabric.api import sudo, put, env, settings
-from fabric.contrib.files import sed, comment, append, uncomment, contains
+from fabric.contrib.files import sed, comment, append
+from fabric.contrib.files import uncomment, contains, exists
 # TODO maybe we can get rid of this dependency to reduce extra libs
 from fabtools import system
 # Luchizz library
@@ -80,11 +81,12 @@ def luchizz_shell():
 
     # Installing default bash changes for newly created users
     # FIXME for what the hell is used this folder?
+    # currently this is causing issues if you connect to localhost debug needed
     # new users seems to rely only on /etc/skel/.bashrc
-    files = put('./files/profile/*', '/etc/profile.d/', use_sudo=True)
-    for f in files:
-        sudo('chown root: {}'.format(f))
-        sudo('chmod 644 {}'.format(f))
+    # ~files = put('./files/profile/*', '/etc/profile.d/', use_sudo=True)
+    # ~for f in files:
+    # ~sudo('chown root: {}'.format(f))
+    # ~sudo('chmod 644 {}'.format(f))
 
     # Update the skel file
     if not contains('/etc/skel/.bashrc', 'luchizz'):
@@ -99,6 +101,8 @@ def luchizz_shell():
     homes.append('/root')
     for u in homes:
         bashrc_file = os.path.join(u, '.bashrc')
+        if not exists(bashrc_file, use_sudo=True):
+            continue
         sed(bashrc_file, 'HISTSIZE=.*', 'HISTIZE=1000000', use_sudo=True)
         sed(bashrc_file, 'HISTFILESIZE=.*', 'HISTFILESIZE=100000',
             use_sudo=True)
