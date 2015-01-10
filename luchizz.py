@@ -20,24 +20,27 @@
 #   ``setup`` install and configure services
 #   ``luchizz`` add nice customizations
 
-import sys
+import os
+import time
 import socket
 from optparse import OptionParser
 from fabric.api import sudo, put, env, settings
-from fabric.contrib.files import sed, comment, append, uncomment
+from fabric.contrib.files import sed, comment, append, uncomment, contains
 # TODO maybe we can get rid of this dependency to reduce extra libs
 from fabtools import system
 # Luchizz library
-from utils import query_yes_no, check_root, print_splash
+from utils import query_yes_no, check_root, print_splash, listdir_fullpath
+from utils import is_installed
 
 __author__ = "Luca Giovenzana <luca@giovenzana.org>"
-__date__ = "2014-12-23"
-__version__ = "0.0.4dev"
+__date__ = "2015-01-10"
+__version__ = "0.0.5dev"
 
 # TODO handle dependencies (fabric, fabtools, pycurl)
 # TODO Install packages
 # TODO Change default password
 # TODO Verify sshd security
+# TODO Implement debug mode and remove all the output from fabric
 
 
 def set_hostname(hostname):
@@ -63,16 +66,44 @@ def set_serial_console():
     sudo('chmod 644 /etc/init/ttyS0.conf')
 
 
-# ~def set_authkey(user):
-    # ~user.add_ssh_public_key(user, '~/.ssh/id_rsa.pub')
+def set_authkey():
+    # TODO loop in current .ssh user looking for certificates and ask which one
+    # needs to be installed remotely, eventually ask to add also to root user
+    pass
 
 
 def luchizz_shell():
-    # Installing default bash changes for new created users
+    # Load the luchizz bashrc script
+    f = open('./files/profile/luchizz-profile.sh', 'r')
+    luchizz_profile = f.read()
+    f.close()
+
+    # Installing default bash changes for newly created users
+    # FIXME for what the hell is used this folder?
+    # new users seems to rely only on /etc/skel/.bashrc
     files = put('./files/profile/*', '/etc/profile.d/', use_sudo=True)
     for f in files:
         sudo('chown root: {}'.format(f))
         sudo('chmod 644 {}'.format(f))
+
+    # Update the skel file
+    if not contains('/etc/skel/.bashrc', 'luchizz'):
+        append('/etc/skel/.bashrc', luchizz_profile, use_sudo=True)
+    # Set huge history for newly created users
+    sed('/etc/skel/.bashrc', 'HISTSIZE=.*', 'HISTSIZE=1000000', use_sudo=True)
+    sed('/etc/skel/.bashrc', 'HISTFILESIZE=.*', 'HISTFILESIZE=100000',
+        use_sudo=True)
+
+    # Appending bash changes to current users and root
+    homes = listdir_fullpath('/home')
+    homes.append('/root')
+    for u in homes:
+        bashrc_file = os.path.join(u, '.bashrc')
+        sed(bashrc_file, 'HISTSIZE=.*', 'HISTIZE=1000000', use_sudo=True)
+        sed(bashrc_file, 'HISTFILESIZE=.*', 'HISTFILESIZE=100000',
+            use_sudo=True)
+        if not contains(bashrc_file, 'luchizz'):
+            append(bashrc_file, luchizz_profile, use_sudo=True)
 
     # Alternate mappings for "page up" and "page down" to search the history
     # uncomment the following lines in /etc/inputrc
@@ -95,17 +126,23 @@ def luchizz_scripts():
 
 
 def setup_shorewall_one_interface():
-    sudo('apt-get install shorewall')
-    sudo('cp /usr/share/doc/shorewall/examples/one-interface/* '
-         '/etc/shorewall/')
-    rules = """SSH(ACCEPT)         net             $FW"""
-    append('/etc/shorewall/rules', rules, use_sudo=True)
-    sed('/etc/default/shorewall', 'startup=0', 'startup=1', use_sudo=True)
-    sudo('/sbin/shorewall check')
-    try:
-        sudo('/sbin/shorewall restart')
-    except socket.error:
-        pass
+    # WARNING UNSTABLE
+    # FIXME network cut in case interface is not eth0 but em0 for instance :(
+    # TODO maybe is better to install also conntrack
+    if not is_installed('shorewall'):
+        sudo('apt-get install shorewall')
+        sudo('cp /usr/share/doc/shorewall/examples/one-interface/* '
+             '/etc/shorewall/')
+        rules = """SSH(ACCEPT)         net             $FW"""
+        append('/etc/shorewall/rules', rules, use_sudo=True)
+        sed('/etc/default/shorewall', 'startup=0', 'startup=1', use_sudo=True)
+        sudo('/sbin/shorewall check')
+        try:
+            sudo('/sbin/shorewall restart')
+        except socket.error:
+            pass
+    else:
+        print("skip, shorewall is already installed!")
 
 
 def setup_denyhosts():
@@ -114,11 +151,21 @@ def setup_denyhosts():
 
 
 def setup_etckeeper():
-    sudo('apt-get install git etckeeper -y')
-    comment('/etc/etckeeper/etckeeper.conf', 'VCS="bzr"', use_sudo=True)
-    uncomment('/etc/etckeeper/etckeeper.conf', 'VCS="git"', use_sudo=True)
-    sudo('etckeeper init')
-    sudo('etckeeper commit -m "Initial commit."')
+    if not is_installed('etckeeper'):
+        sudo('apt-get install git etckeeper')
+        comment('/etc/etckeeper/etckeeper.conf', 'VCS="bzr"', use_sudo=True)
+        uncomment('/etc/etckeeper/etckeeper.conf', 'VCS="git"', use_sudo=True)
+        sudo('etckeeper init')
+        sudo('etckeeper commit -m "Initial commit."')
+    else:
+        print("skip, etckeeper is already installed!")
+
+
+def secure_sshd():
+    # TODO make sure these line exists
+    # PermitEmptyPasswords no
+    # PermitRootLogin without-password
+    pass
 
 
 def main():
@@ -129,35 +176,47 @@ def main():
     # parser.add_option("-d", "--debug", dest="DEBUG",
     #                  help="all output from fabric", action='store_true')
     (options, args) = parser.parse_args()
-    env.host_string = options.HOSTS.split(',')[0]
+    if options.HOSTS:
+        env.host_string = options.HOSTS.split(',')[0]
 
     print_splash(__version__)
+    check_root()
+    print("Ready to luchizz: {}\nCTRL-C to abort\n\n".format(env.host_string))
+    time.sleep(1)
 
-    proceed = query_yes_no("Do you want to luchizz"
-                           "{}?".format(env.host_string), 'no')
-    if proceed:
-        check_root()
+    # Setup etckeeper
+    etckeeper = query_yes_no("Do you want to setup etckeeper to track changes"
+                             " in /etc using git?",
+                             'yes')
+    if etckeeper:
+        setup_etckeeper()
 
-        etckeeper = query_yes_no("""
-Would be safer to install etckeeper before changing the etc configurations.
-Do you want to proceed?""".format(env.host_string), 'yes')
-        if etckeeper:
-            setup_etckeeper()
-
+    # Luchizz the shell
+    shell = query_yes_no("Do you want to luchizz root and all users "
+                         "that have the home folder in /home?", 'yes')
+    if shell:
         luchizz_shell()
+        # If luchizz shell is applied a dedicated commit is applied
+        # 127 return code is in case etckeeper is not installed won't fail
+        with settings(ok_ret_codes=(0, 1, 127)):
+            sudo('etckeeper commit -m "luchizzed shell"')
+
+    # Install luchizz scripts
+    scripts = query_yes_no("Do you want to install luchizz scripts in "
+                           "/usr/local/bin?", 'yes')
+    if scripts:
         luchizz_scripts()
-        if etckeeper:
-            with settings(ok_ret_codes=(0, 1)):
-                sudo('etckeeper commit -m "luchizzed shell"')
 
-        shorewall = query_yes_no("""
-Do you want to install shorewall and setup as one interface server?""", 'no')
-        if shorewall:
-            setup_shorewall_one_interface()
+    # ~shorewall = query_yes_no("Do you want to install shorewall and setup "
+    # ~"as one interface server?""", 'no')
+    # ~if shorewall:
+    # ~setup_shorewall_one_interface()
 
-    else:
-        print "exiting.."
-        sys.exit(0)
+    # Catch all commit for etckeeper
+    # 127 return code is in case etckeeper is not installed won't fail
+    with settings(ok_ret_codes=(0, 1, 127)):
+        sudo('etckeeper commit -m "final luchizz commit"')
+
     return 0
 
 

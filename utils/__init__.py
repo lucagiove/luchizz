@@ -4,8 +4,9 @@
 #  Copyright 2014 Luca Giovenzana <luca@giovenzana.org>
 #
 
+import os
 import sys
-from fabric.api import run, sudo
+from fabric.api import run, sudo, settings
 
 
 def print_splash(version):
@@ -63,3 +64,52 @@ def query_yes_no(question, default="yes"):
         else:
             sys.stdout.write("Please respond with 'yes' or 'no' "
                              "(or 'y' or 'n').\n")
+
+
+def isdir(path):
+    """Test whether a **path** (``str``) is a directory
+
+    Credits to octopus.utils
+    """
+
+    with settings(ok_ret_codes=(0, 1)):
+        output = run('test -d "%s"' % path)
+    if output.return_code == 0:
+        return True
+    else:
+        return False
+
+
+def listdir(path):
+    """Return a list containing the names of the entries in the directory found
+    at **path** (str).
+
+    Credits to octopus.utils
+    """
+
+    # This is used to add trailing slash if needed and sanitize the input
+    path = os.path.join(path, '')
+    # Verify that the path exists because the command below wont fail in
+    # case the folder doesn't exist.. :(
+    if not isdir(path):
+        raise OSError('No such file or directory: {}'.format(path))
+    # Relies on find to extract non recursive paths
+    output = run('find "{}" -maxdepth 1'.format(path))
+    # removing extra formatting and the absolute path to simulate the
+    # os.listdir() behavior
+    dir_list = output.replace('\r', '').replace(path, '').split('\n')
+    # Doesn't return the first element which is always "."
+    return dir_list[1:]
+
+
+def listdir_fullpath(path):
+    return [os.path.join(path, f) for f in listdir(path)]
+
+
+def is_installed(package):
+    with settings(ok_ret_codes=(0, 1)):
+        output = run('dpkg-query -p {}'.format(package))
+    if output.return_code == 0:
+        return True
+    else:
+        return False

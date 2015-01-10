@@ -1,3 +1,9 @@
+
+# START of luchizz bash enhancements
+# Copyright (C) 2014 Luca Giovenzana <luca@giovenzana.org>
+# luchizz-profile.sh (0.0.5)
+
+# colorized prompt
 if [ "`id -u`" -eq 0 ]; then
     PS1='${debian_chroot:+($debian_chroot)}\[\033[01;31m\]\u@\h\[\033[00m\]:\[\033[01;34m\]\w\[\033[00m\]# '
 else
@@ -34,10 +40,10 @@ if ! shopt -oq posix; then
   fi
 fi
 
-# set huge history size
-HISTSIZE=100000
-
 # enable z - jump around module
 if [ -f /usr/local/bin/z.sh ]; then
     . /usr/local/bin/z.sh
 fi
+
+# END of luchizz bash enhancements
+
