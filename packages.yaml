@@ -8,10 +8,8 @@ base:
     curl
     screen
     git
-    etckeeper
     acpid
     tree
-    locale
 
 net:
     ethtool
@@ -28,9 +26,8 @@ net:
     traceroute
 
 physical_server:
-    sysv-rc-conf
     hdparm
     hddtemp
     lm-sensors
     lshw
-
+    smartmontools

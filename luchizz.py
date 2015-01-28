@@ -49,16 +49,18 @@ def set_hostname(hostname):
         use_sudo=True)
     system.set_hostname(hostname)
 
-# FIXME run the command
-# ~def set_main_user(olduser, newuser):
-# ~
-    # ~script = """#!/bin/bash
-# ~sed -i.bak -r -e 's/%s/%s/g' "$(echo /etc/passwd)"
-# ~sed -i.bak -r -e 's/%s/%s/g' "$(echo /etc/shadow)"
-# ~sed -i.bak -r -e 's/%s/%s/g' "$(echo /etc/group)"
-# ~sed -i.bak -r -e 's/%s/%s/g' "$(echo /etc/gshadow)"
-# ~mv /home/%s /home/%s
-# ~"""
+
+def set_rename_user(olduser, newuser):
+    # FIXME more strict regex eg. ^user: and pay attention to home folder
+    sed('/etc/group', olduser, newuser, use_sudo=True)
+    sed('/etc/gshadow', olduser, newuser, use_sudo=True)
+    sudo('mv /home/{} /home/{}'.format(olduser, newuser))
+    # Is required to run at the same time this two commands otherwise sudo
+    # will fail because the password or user has changed
+    sudo("sed -i.bak -r -e 's/{}/{}/g' /etc/passwd ;"
+         .format(olduser, newuser) +
+         "sed -i.bak -r -e 's/{}/{}/g' /etc/shadow"
+         .format(olduser, newuser))
 
 
 def set_serial_console():
