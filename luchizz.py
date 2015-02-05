@@ -21,14 +21,20 @@
 #   ``luchizz`` add nice customizations
 
 import os
+import sys
 import time
 import socket
 from optparse import OptionParser
-from fabric.api import sudo, put, env, settings
-from fabric.contrib.files import sed, comment, append
-from fabric.contrib.files import uncomment, contains, exists
-# TODO maybe we can get rid of this dependency to reduce extra libs
-from fabtools import system
+try:
+    from fabric.api import sudo, put, env, settings
+    from fabric.contrib.files import sed, comment, append
+    from fabric.contrib.files import uncomment, contains, exists
+except ImportError:
+    print """
+ImportError: Seems that fabric is not installed!
+             Try with `sudo pip install fabric`
+"""
+    sys.exit(1)
 # Luchizz library
 from utils import query_yes_no, check_root, print_splash, listdir_fullpath
 from utils import is_installed
@@ -37,17 +43,18 @@ __author__ = "Luca Giovenzana <luca@giovenzana.org>"
 __date__ = "2015-01-10"
 __version__ = "0.0.5dev"
 
-# TODO handle dependencies (fabric, fabtools, pycurl)
 # TODO Install packages
 # TODO Change default password
 # TODO Verify sshd security
 # TODO Implement debug mode and remove all the output from fabric
+# TODO clean the list of task shown by fab
+# TODO print warning on user rename or change also sudoers
 
 
 def set_hostname(hostname):
     sed('/etc/hosts', '127\.0\.1\.1.*', '127\.0\.1\.1\t'+hostname,
         use_sudo=True)
-    system.set_hostname(hostname)
+    sudo('echo {} >/etc/hostname'.format(hostname))
 
 
 def set_rename_user(olduser, newuser):
