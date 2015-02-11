@@ -27,6 +27,7 @@ import socket
 from optparse import OptionParser
 try:
     from fabric.api import sudo, put, env, settings
+    from fabric.state import output as fabric_output
     from fabric.contrib.files import sed, comment, append
     from fabric.contrib.files import uncomment, contains, exists
 except ImportError:
@@ -40,21 +41,25 @@ from utils import query_yes_no, check_root, print_splash, listdir_fullpath
 from utils import is_installed
 
 __author__ = "Luca Giovenzana <luca@giovenzana.org>"
-__date__ = "2015-01-10"
-__version__ = "0.0.5dev"
+__date__ = "2015-02-11"
+__version__ = "0.0.6dev"
 
 # TODO Install packages
 # TODO Change default password
 # TODO Verify sshd security
-# TODO Implement debug mode and remove all the output from fabric
 # TODO clean the list of task shown by fab
 # TODO print warning on user rename or change also sudoers
+# TODO support line editing for read string
 
 
-def set_hostname(hostname):
-    sed('/etc/hosts', '127\.0\.1\.1.*', '127\.0\.1\.1\t'+hostname,
+def set_fqdn(fqdn):
+    hostname = fqdn.split('.')[0]
+    sed('/etc/hosts', '127\.0\.1\.1.*',
+        '127\.0\.1\.1\t{}\t{}'.format(fqdn, hostname),
         use_sudo=True)
     sudo('echo {} >/etc/hostname'.format(hostname))
+    # activate the hostname
+    sudo('hostname -F /etc/hostname')
 
 
 def set_rename_user(olduser, newuser):
@@ -80,6 +85,20 @@ def set_authkey():
     # TODO loop in current .ssh user looking for certificates and ask which one
     # needs to be installed remotely, eventually ask to add also to root user
     pass
+
+
+def set_disable_backports():
+    # FIXME avoid multiple # to be added if executed multiple times
+    comment('/etc/apt/sources.list', '.+-backports', use_sudo=True)
+
+
+def set_disable_recommended():
+    """ This method will prevent apt to automatically install recommended
+    packages. This is suggested in case you want to have more control of your
+    system and keep installed software at minimum"""
+    aptconf = """APT::Install-Suggests "0";
+APT::Install-Recommends "0";"""
+    sudo("echo '{}' > /etc/apt/apt.conf.d/99luchizz".format(aptconf))
 
 
 def luchizz_shell():
@@ -151,16 +170,18 @@ def setup_shorewall_one_interface():
         sed('/etc/default/shorewall', 'startup=0', 'startup=1', use_sudo=True)
         sudo('/sbin/shorewall check')
         try:
-            sudo('/sbin/shorewall restart')
+            # BETTER TO ASK BEFORE TO PREVENT BEING CUT OFF
+            # ~sudo('/sbin/shorewall restart')
+            pass
         except socket.error:
             pass
     else:
         print("skip, shorewall is already installed!")
 
 
-def setup_denyhosts():
-    # FIXME not in ubuntu 14.04??
-    sudo('apt-get install denyhosts')
+# ~def setup_denyhosts():
+    # ~# FIXME not in ubuntu 14.04??
+    # ~sudo('apt-get install denyhosts')
 
 
 def setup_etckeeper():
@@ -172,6 +193,11 @@ def setup_etckeeper():
         sudo('etckeeper commit -m "Initial commit."')
     else:
         print("skip, etckeeper is already installed!")
+
+
+# ~def setup_mail_notification():
+    # ~if not is_installed('ssmtp'):
+        # ~sudo('apt-get install ssmtp')
 
 
 def secure_sshd():
@@ -186,28 +212,55 @@ def main():
     parser.add_option("-H", "--hosts", dest="HOSTS",
                       help="comma-separated list of hosts to operate on",
                       type='string', metavar="HOSTS")
-    # parser.add_option("-d", "--debug", dest="DEBUG",
-    #                  help="all output from fabric", action='store_true')
+    parser.add_option("-d", "--debug", dest="DEBUG",
+                      help="all output from fabric", action='store_true',
+                      default=False)
     (options, args) = parser.parse_args()
+
+    # Setting up the target hosts
     if options.HOSTS:
         env.host_string = options.HOSTS.split(',')[0]
 
+    # Setting up fabric output for debug
+    if options.DEBUG:
+        to_set = {'aborts': True,
+                  'debug': True,
+                  'running': True,
+                  'status': True,
+                  'stderr': True,
+                  'stdout': True,
+                  'user': True,
+                  'warnings': True}
+    # Setting up fabric output for normal usage
+    else:
+        to_set = {'aborts': True,
+                  'debug': False,
+                  'running': False,
+                  'status': False,
+                  'stderr': False,
+                  'stdout': False,
+                  'user': False,
+                  'warnings': True}
+    # Apply the dictionary structure to the output handler of fabric
+    for key in to_set.keys():
+        fabric_output[key] = to_set[key]
+
     print_splash(__version__)
     check_root()
-    print("Ready to luchizz: {}\nCTRL-C to abort\n\n".format(env.host_string))
+    print("Ready to luchizz: {} ???\n"
+          "CTRL-C to abort\n\n".format(env.host_string))
     time.sleep(1)
 
     # Setup etckeeper
-    etckeeper = query_yes_no("Do you want to setup etckeeper to track changes"
-                             " in /etc using git?",
-                             'yes')
-    if etckeeper:
-        setup_etckeeper()
+    if not is_installed('etckeeper'):
+        etckeeper = query_yes_no("SETUP etckeeper to track changes in /etc "
+                                 "using git?", 'yes')
+        if etckeeper:
+            setup_etckeeper()
 
     # Luchizz the shell
-    shell = query_yes_no("Do you want to luchizz root and all users "
-                         "that have the home folder in /home?", 'yes')
-    if shell:
+    if query_yes_no("Do you want to `luchizz` root and all users "
+                    "that have the home folder in /home?", 'yes'):
         luchizz_shell()
         # If luchizz shell is applied a dedicated commit is applied
         # 127 return code is in case etckeeper is not installed won't fail
@@ -215,10 +268,17 @@ def main():
             sudo('etckeeper commit -m "luchizzed shell"')
 
     # Install luchizz scripts
-    scripts = query_yes_no("Do you want to install luchizz scripts in "
-                           "/usr/local/bin?", 'yes')
-    if scripts:
+    if query_yes_no("INSTALL luchizz scripts in /usr/local/bin?", 'yes'):
         luchizz_scripts()
+
+    # Disable backports
+    if query_yes_no("DISABLE backports repositories?", 'yes'):
+        set_disable_backports()
+
+    # Disable automatic installation of suggested and recommended packages
+    if query_yes_no("DISABLE automatic installation of recommended packages?",
+                    'yes'):
+        set_disable_recommended()
 
     # ~shorewall = query_yes_no("Do you want to install shorewall and setup "
     # ~"as one interface server?""", 'no')
@@ -230,6 +290,7 @@ def main():
     with settings(ok_ret_codes=(0, 1, 127)):
         sudo('etckeeper commit -m "final luchizz commit"')
 
+    print "done"
     return 0
 
 
