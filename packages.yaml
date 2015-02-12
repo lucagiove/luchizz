@@ -1,33 +1,34 @@
 base:
-    less
-    vim
-    htop
-    deborphan
-    ntp
-    wget
-    curl
-    screen
-    git
-    acpid
-    tree
+    - aptitude
+    - less
+    - vim
+    - htop
+    - deborphan
+    - ntp
+    - wget
+    - curl
+    - screen
+    - git
+    - acpid
+    - tree
 
 net:
-    ethtool
-    iproute
-    iputils-arping
-    iftop
-    iptraf
-    iperf
-    bmon
-    tcpdump
-    nmap
-    netcat
-    whois
-    traceroute
+    - ethtool
+    - iproute
+    - iputils-arping
+    - iftop
+    - iptraf
+    - iperf
+    - bmon
+    - tcpdump
+    - nmap
+    - netcat
+    - whois
+    - traceroute
 
 physical_server:
-    hdparm
-    hddtemp
-    lm-sensors
-    lshw
-    smartmontools
+    - hdparm
+    # - hddtemp
+    - lm-sensors
+    - lshw
+    - smartmontools

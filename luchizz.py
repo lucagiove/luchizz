@@ -23,11 +23,13 @@
 import os
 import sys
 import time
+import yaml
 import socket
 from optparse import OptionParser
 try:
     from fabric.api import sudo, put, env, settings
     from fabric.state import output as fabric_output
+    from fabric.context_managers import show, quiet
     from fabric.contrib.files import sed, comment, append
     from fabric.contrib.files import uncomment, contains, exists
 except ImportError:
@@ -41,15 +43,28 @@ from utils import query_yes_no, check_root, print_splash, listdir_fullpath
 from utils import is_installed
 
 __author__ = "Luca Giovenzana <luca@giovenzana.org>"
-__date__ = "2015-02-11"
-__version__ = "0.0.6dev"
+__date__ = "2015-02-12"
+__version__ = "0.0.7dev"
 
-# TODO Install packages
-# TODO Change default password
-# TODO Verify sshd security
+# Luchizz script folder
+LUCHIZZ_DIR = os.path.dirname(os.path.realpath(__file__))
+
+# #### version 0.1
 # TODO clean the list of task shown by fab
 # TODO print warning on user rename or change also sudoers
 # TODO support line editing for read string
+# TODO test on 12.04 and 14.10
+# TODO improve a real debug/verbose/normal mode
+# TODO refactore python file structure to split more
+
+# #### version 0.0.x
+# TODO update readme
+# FIXME handle apt-get update somehow
+# FIXME handle returncode 1 in case of NO answer to apt-get
+# TODO setup sshd security
+# TODO install ssh-keys
+# TODO setup rkhunter
+# TODO setup mail notification
 
 
 def set_fqdn(fqdn):
@@ -103,7 +118,10 @@ APT::Install-Recommends "0";"""
 
 def luchizz_shell():
     # Load the luchizz bashrc script
-    f = open('./files/profile/luchizz-profile.sh', 'r')
+    global LUCHIZZ_DIR
+    luchizz_profile = os.path.join(LUCHIZZ_DIR,
+                                   'files/profile/luchizz-profile.sh')
+    f = open(luchizz_profile, 'r')
     luchizz_profile = f.read()
     f.close()
 
@@ -149,7 +167,9 @@ def luchizz_shell():
 
 
 def luchizz_scripts():
-    scripts = put('./files/scripts/*', '/usr/local/bin', use_sudo=True)
+    global LUCHIZZ_DIR
+    scripts_dir = os.path.join(LUCHIZZ_DIR, 'files/scripts/*')
+    scripts = put(scripts_dir, '/usr/local/bin', use_sudo=True)
     for s in scripts:
         sudo('chown root: {}'.format(s))
         sudo('chmod 755 {}'.format(s))
@@ -162,7 +182,7 @@ def setup_shorewall_one_interface():
     # FIXME network cut in case interface is not eth0 but em0 for instance :(
     # TODO maybe is better to install also conntrack
     if not is_installed('shorewall'):
-        sudo('apt-get install shorewall')
+        sudo('apt-get install shorewall -y')
         sudo('cp /usr/share/doc/shorewall/examples/one-interface/* '
              '/etc/shorewall/')
         rules = """SSH(ACCEPT)         net             $FW"""
@@ -186,7 +206,7 @@ def setup_shorewall_one_interface():
 
 def setup_etckeeper():
     if not is_installed('etckeeper'):
-        sudo('apt-get install git etckeeper')
+        sudo('apt-get install git etckeeper -y')
         comment('/etc/etckeeper/etckeeper.conf', 'VCS="bzr"', use_sudo=True)
         uncomment('/etc/etckeeper/etckeeper.conf', 'VCS="git"', use_sudo=True)
         sudo('etckeeper init')
@@ -197,7 +217,7 @@ def setup_etckeeper():
 
 # ~def setup_mail_notification():
     # ~if not is_installed('ssmtp'):
-        # ~sudo('apt-get install ssmtp')
+        # ~sudo('apt-get install ssmtp -y')
 
 
 def secure_sshd():
@@ -207,11 +227,23 @@ def secure_sshd():
     pass
 
 
+def install_packages(pkgs_list):
+    pkgs_string = ""
+    for pkg in pkgs_list:
+        pkgs_string += " {}".format(pkg)
+    with show('stdout', 'stderr'):
+        sudo('apt-get install {}'.format(pkgs_string))
+
+
 def main():
     parser = OptionParser("usage: luchizz.py --host hosts [options]")
     parser.add_option("-H", "--hosts", dest="HOSTS",
                       help="comma-separated list of hosts to operate on",
                       type='string', metavar="HOSTS")
+    parser.add_option("-p", "--packages-file", dest="PKGS_FILE",
+                      help="yaml file for the debian packages you want to "
+                      "install via apt-get",
+                      type='string', metavar="PKGS_FILE")
     parser.add_option("-d", "--debug", dest="DEBUG",
                       help="all output from fabric", action='store_true',
                       default=False)
@@ -221,7 +253,22 @@ def main():
     if options.HOSTS:
         env.host_string = options.HOSTS.split(',')[0]
 
+    # Setting up the default path for the packages yaml
+    if not options.PKGS_FILE:
+        options.PKGS_FILE = os.path.join(LUCHIZZ_DIR, 'packages.yaml')
+    # Make sure the package file exists
+    if os.path.isfile(options.PKGS_FILE):
+        # get the dictionary from the yaml file
+        p = open(options.PKGS_FILE, 'r')
+        packages = yaml.load(p.read())
+        p.close()
+    else:
+        print "IOError: packages file not found {}".format(options.PKGS_FILE)
+        sys.exit(1)
+
     # Setting up fabric output for debug
+    # FIXME here there are problem with the overrided options context managers
+    # needs to be always used probably
     if options.DEBUG:
         to_set = {'aborts': True,
                   'debug': True,
@@ -238,7 +285,7 @@ def main():
                   'running': False,
                   'status': False,
                   'stderr': False,
-                  'stdout': False,
+                  'stdout': True,
                   'user': False,
                   'warnings': True}
     # Apply the dictionary structure to the output handler of fabric
@@ -246,39 +293,48 @@ def main():
         fabric_output[key] = to_set[key]
 
     print_splash(__version__)
-    check_root()
-    print("Ready to luchizz: {} ???\n"
-          "CTRL-C to abort\n\n".format(env.host_string))
+    with quiet():
+        check_root()
+    print("\nReady to luchizz: {}?\n"
+          "CTRL-C to abort\n".format(env.host_string))
     time.sleep(1)
 
     # Setup etckeeper
     if not is_installed('etckeeper'):
-        etckeeper = query_yes_no("SETUP etckeeper to track changes in /etc "
-                                 "using git?", 'yes')
-        if etckeeper:
+        if query_yes_no("SETUP etckeeper to track changes in /etc "
+                        "using git?", 'yes'):
             setup_etckeeper()
 
     # Luchizz the shell
     if query_yes_no("Do you want to `luchizz` root and all users "
-                    "that have the home folder in /home?", 'yes'):
-        luchizz_shell()
+                    "with a home folder in /home?", 'yes'):
+        with quiet():
+            luchizz_shell()
         # If luchizz shell is applied a dedicated commit is applied
         # 127 return code is in case etckeeper is not installed won't fail
-        with settings(ok_ret_codes=(0, 1, 127)):
+        with settings(ok_ret_codes=(0, 1, 127)), quiet():
             sudo('etckeeper commit -m "luchizzed shell"')
 
     # Install luchizz scripts
     if query_yes_no("INSTALL luchizz scripts in /usr/local/bin?", 'yes'):
-        luchizz_scripts()
+        with quiet():
+            luchizz_scripts()
 
     # Disable backports
     if query_yes_no("DISABLE backports repositories?", 'yes'):
-        set_disable_backports()
+        with quiet():
+            set_disable_backports()
 
     # Disable automatic installation of suggested and recommended packages
     if query_yes_no("DISABLE automatic installation of recommended packages?",
                     'yes'):
-        set_disable_recommended()
+        with quiet():
+            set_disable_recommended()
+
+    for pkg_section in packages.keys():
+        if query_yes_no("INSTALL {} packages?".format(pkg_section),
+                        'yes'):
+            install_packages(packages[pkg_section])
 
     # ~shorewall = query_yes_no("Do you want to install shorewall and setup "
     # ~"as one interface server?""", 'no')
@@ -287,10 +343,10 @@ def main():
 
     # Catch all commit for etckeeper
     # 127 return code is in case etckeeper is not installed won't fail
-    with settings(ok_ret_codes=(0, 1, 127)):
+    with settings(ok_ret_codes=(0, 1, 127)), quiet():
         sudo('etckeeper commit -m "final luchizz commit"')
 
-    print "done"
+    print "\nluchizz done"
     return 0
 
 

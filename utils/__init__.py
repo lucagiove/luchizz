@@ -7,6 +7,7 @@
 import os
 import sys
 from fabric.api import run, sudo, settings
+from fabric.context_managers import quiet
 
 
 def print_splash(version):
@@ -25,12 +26,13 @@ def print_splash(version):
 
 def check_root():
     """Verifies that the current user is root"""
-    if run('id -u') != '0':
-        if sudo('id -u', warn_only=True) != '0':
-            print """
+    with quiet():
+        if run('id -u') != '0':
+            if sudo('id -u', warn_only=True) != '0':
+                print """
 WARNING: you need to run this script as root or with sudo if you want to take
          advantage of all the luchizz features."""
-            sys.exit(1)
+                sys.exit(1)
 
 
 def query_yes_no(question, default="yes"):
@@ -73,7 +75,7 @@ def isdir(path):
     """
 
     with settings(ok_ret_codes=(0, 1)):
-        output = run('test -d "%s"' % path)
+        output = run('test -d "%s"' % path, quiet=True)
     if output.return_code == 0:
         return True
     else:
@@ -94,7 +96,7 @@ def listdir(path):
     if not isdir(path):
         raise OSError('No such file or directory: {}'.format(path))
     # Relies on find to extract non recursive paths
-    output = run('find "{}" -maxdepth 1'.format(path))
+    output = run('find "{}" -maxdepth 1'.format(path), quiet=True)
     # removing extra formatting and the absolute path to simulate the
     # os.listdir() behavior
     dir_list = output.replace('\r', '').replace(path, '').split('\n')
@@ -108,7 +110,7 @@ def listdir_fullpath(path):
 
 def is_installed(package):
     with settings(ok_ret_codes=(0, 1)):
-        output = run('dpkg-query -p {}'.format(package))
+        output = run('dpkg-query -p {}'.format(package), quiet=True)
     if output.return_code == 0:
         return True
     else:
