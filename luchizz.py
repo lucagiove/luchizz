@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 #
-#  Copyright (C) 2014 Luca Giovenzana <luca@giovenzana.org>
+#  Copyright (C) 2014-2015 Luca Giovenzana <luca@giovenzana.org>
 #
 #  This program is free software: you can redistribute it and/or modify
 #  it under the terms of the GNU General Public License as published by
@@ -25,9 +25,10 @@ import sys
 import time
 import yaml
 import socket
+from glob import glob
 from optparse import OptionParser
 try:
-    from fabric.api import sudo, put, env, settings
+    from fabric.api import run, sudo, put, env, settings
     from fabric.state import output as fabric_output
     from fabric.context_managers import show, quiet
     from fabric.contrib.files import sed, comment, append
@@ -43,8 +44,8 @@ from utils import query_yes_no, check_root, print_splash, listdir_fullpath
 from utils import is_installed
 
 __author__ = "Luca Giovenzana <luca@giovenzana.org>"
-__date__ = "2015-02-12"
-__version__ = "0.0.7dev"
+__date__ = "2015-02-14"
+__version__ = "0.0.8dev"
 
 # Luchizz script folder
 LUCHIZZ_DIR = os.path.dirname(os.path.realpath(__file__))
@@ -55,16 +56,16 @@ LUCHIZZ_DIR = os.path.dirname(os.path.realpath(__file__))
 # TODO support line editing for read string
 # TODO test on 12.04 and 14.10
 # TODO improve a real debug/verbose/normal mode
-# TODO refactore python file structure to split more
+# TODO refactor python file structure to split more
+# TODO detection of luchizz version for the bash-profile and update
 
 # #### version 0.0.x
-# TODO update readme
 # FIXME handle apt-get update somehow
 # FIXME handle returncode 1 in case of NO answer to apt-get
 # TODO setup sshd security
-# TODO install ssh-keys
 # TODO setup rkhunter
 # TODO setup mail notification
+# TODO add customized gitconfig file
 
 
 def set_fqdn(fqdn):
@@ -96,10 +97,23 @@ def set_serial_console():
     sudo('chmod 644 /etc/init/ttyS0.conf')
 
 
-def set_authkey():
-    # TODO loop in current .ssh user looking for certificates and ask which one
-    # needs to be installed remotely, eventually ask to add also to root user
-    pass
+def set_authentication_keys():
+    """Loops in current user .ssh looking for certificates and ask which one
+    needs to be installed remotely"""
+
+    ssh_path = os.path.join(os.getenv('HOME'), '.ssh/')
+    ids_ssh = glob('{}id*.pub'.format(ssh_path))
+    for id_ssh in ids_ssh:
+        f = open(id_ssh, 'r')
+        # reading the public key for anything after the key to get name and
+        # address that normally follow the key
+        id_ssh_file = f.read()
+        id_ssh_name = ' '.join(id_ssh_file.split()[2:])
+        if query_yes_no("CONFIGURE {}'s ssh key for "
+                        "authentication?".format(id_ssh_name), 'yes'):
+            run('mkdir -p $HOME/.ssh')
+            run('touch $HOME/.ssh/authorized_keys')
+            append('$HOME/.ssh/authorized_keys', id_ssh_file.rstrip('\n\r'))
 
 
 def set_disable_backports():
@@ -108,9 +122,10 @@ def set_disable_backports():
 
 
 def set_disable_recommended():
-    """ This method will prevent apt to automatically install recommended
+    """This method will prevent apt to automatically install recommended
     packages. This is suggested in case you want to have more control of your
     system and keep installed software at minimum"""
+
     aptconf = """APT::Install-Suggests "0";
 APT::Install-Recommends "0";"""
     sudo("echo '{}' > /etc/apt/apt.conf.d/99luchizz".format(aptconf))
@@ -319,6 +334,12 @@ def main():
     if query_yes_no("INSTALL luchizz scripts in /usr/local/bin?", 'yes'):
         with quiet():
             luchizz_scripts()
+
+    # Copy ssh keys
+    if query_yes_no("CONFIGURE local ssh keys as authorized for "
+                    "authentication?", 'yes'):
+        with quiet():
+            set_authentication_keys()
 
     # Disable backports
     if query_yes_no("DISABLE backports repositories?", 'yes'):

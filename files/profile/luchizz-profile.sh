@@ -1,7 +1,7 @@
 
 # START of luchizz bash enhancements
-# Copyright (C) 2014 Luca Giovenzana <luca@giovenzana.org>
-# luchizz-profile.sh (0.0.5)
+# Copyright (C) 2014-2015 Luca Giovenzana <luca@giovenzana.org>
+# luchizz-profile.sh (0.0.8)
 
 # colorized prompt
 if [ "`id -u`" -eq 0 ]; then

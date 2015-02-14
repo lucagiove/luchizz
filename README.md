@@ -18,6 +18,7 @@ Features
 --------
 
 **Shell improvements**
+
  - Pag UP/DOWN to search in the command history
  - Different prompt colors for normal user and root
  - Human readable output for ls, df, free
@@ -27,13 +28,25 @@ Features
  and more..
 
 **Quick packages deployment**
-Luchizz script has a default ``packages.yaml`` with categorized sections for
-packages to be installed.
-List of common used packages can be easily extended and customized.
+
+ Luchizz script has a default ``packages.yaml`` with categorized sections for
+ packages to be installed. 
+ List of common used packages can be easily extended and customized.
 
 **Extra commands**
+
  - ``z`` jump around shell script
  - ``detectip`` what's my ip command
+
+**Apt tuning**
+
+ - Disable backports repository (normally less stable and reliable)
+ - Disable automatic installation for recommended and suggested packages
+
+**Install ssh keys for authentication**
+ 
+ For each ``.pub`` key in ``$HOME/.ssh`` will be prompted a request to copy the
+ public certificate to the remote system ``authorized_key``.
 
 Credits
 -------
