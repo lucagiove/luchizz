@@ -3,14 +3,12 @@ luchizz
 
 **Make any Linux shell like home.**
 
-**WARNING UNDER DEVELOPMENT**
-
 Tested on:
  - Ubuntu 14.04 Trusty
  - Debian 7.7 Wheezy
 
 Luchizz was originally implemented as bash script to modify a Linux
-installation to be more confortable and usable with some customization
+installation to be more comfortable and usable with some customization
 especially for shell usage.
 With this github repo I'm starting to rewrite the script in python using fabric
 library in order to deploy remotely (via ssh) commonly used packages and shell
@@ -24,9 +22,14 @@ Features
  - Different prompt colors for normal user and root
  - Human readable output for ls, df, free
  - Colorized output for ls, grep
- - Aliases for ls, rm
+ - Overwrite protection with --interactive aliases for rm, cp, mv
  - Extended command history
  and more..
+
+**Quick packages deployment**
+Luchizz script has a default ``packages.yaml`` with categorized sections for
+packages to be installed.
+List of common used packages can be easily extended and customized.
 
 **Extra commands**
  - ``z`` jump around shell script
