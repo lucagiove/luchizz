@@ -251,7 +251,8 @@ def install_packages(pkgs_list):
 
 
 def main():
-    parser = OptionParser("usage: luchizz.py --host hosts [options]")
+    parser = OptionParser("usage: luchizz.py --host hosts [options]",
+                          version="luchizz {}".format(__version__))
     parser.add_option("-H", "--hosts", dest="HOSTS",
                       help="comma-separated list of hosts to operate on",
                       type='string', metavar="HOSTS")
