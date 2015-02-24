@@ -32,3 +32,5 @@ physical_server:
     - lm-sensors
     - lshw
     - smartmontools
+    - fidsk
+    - gdisk
