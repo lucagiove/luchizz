@@ -62,6 +62,8 @@ LUCHIZZ_DIR = os.path.dirname(os.path.realpath(__file__))
 # #### version 0.0.x
 # FIXME handle apt-get update somehow
 # FIXME handle returncode 1 in case of NO answer to apt-get
+# FIXME handle stdout/err redirection
+# FIXME see why doesn't work on raspbmc
 # TODO setup sshd security
 # TODO setup rkhunter
 # TODO setup mail notification

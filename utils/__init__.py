@@ -27,9 +27,8 @@ def print_splash(version):
 def check_root():
     """Verifies that the current user is root"""
     with quiet():
-        if run('id -u') != '0':
-            # FIXME see why doesn't work on raspbmc
-            if sudo('id -u', warn_only=True) != '0':
+        if run('id -u 2> /dev/null') != '0':
+            if sudo('id -u 2> /dev/null', warn_only=True) != '0':
                 print """
 WARNING: you need to run this script as root or with sudo if you want to take
          advantage of all the luchizz features."""
