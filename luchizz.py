@@ -23,7 +23,6 @@
 import os
 import sys
 import time
-import yaml
 import socket
 from glob import glob
 from optparse import OptionParser
@@ -39,16 +38,28 @@ ImportError: Seems that fabric is not installed!
              Try with `sudo pip install fabric`
 """
     sys.exit(1)
+try:
+    import yaml
+except ImportError:
+    print """
+ImportError: Seems that PyYAML is not installed!
+             Try with `sudo pip install pyyaml`
+"""
+    sys.exit(1)
+
 # Luchizz library
 from utils import query_yes_no, check_root, print_splash, listdir_fullpath
 from utils import is_installed
 
 __author__ = "Luca Giovenzana <luca@giovenzana.org>"
-__date__ = "2015-02-14"
+__date__ = "2015-03-05"
 __version__ = "0.0.8dev"
 
 # Luchizz script folder
 LUCHIZZ_DIR = os.path.dirname(os.path.realpath(__file__))
+
+# #### future
+# TODO fix locale error
 
 # #### version 0.1
 # TODO clean the list of task shown by fab
@@ -57,13 +68,14 @@ LUCHIZZ_DIR = os.path.dirname(os.path.realpath(__file__))
 # TODO test on 12.04 and 14.10
 # TODO improve a real debug/verbose/normal mode
 # TODO refactor python file structure to split more
-# TODO detection of luchizz version for the bash-profile and update
+# TODO detect luchizz version for the bash-profile and update
+# TODO change to argparse
 
 # #### version 0.0.x
 # FIXME handle apt-get update somehow
 # FIXME handle returncode 1 in case of NO answer to apt-get
 # FIXME handle stdout/err redirection
-# FIXME see why doesn't work on raspbmc
+# FIXME see why doesn't work on raspbmc (bec of motd always printed..)
 # TODO setup sshd security
 # TODO setup rkhunter
 # TODO setup mail notification
@@ -71,10 +83,15 @@ LUCHIZZ_DIR = os.path.dirname(os.path.realpath(__file__))
 
 
 def set_fqdn(fqdn):
+
     hostname = fqdn.split('.')[0]
-    sed('/etc/hosts', '127\.0\.1\.1.*',
-        '127\.0\.1\.1\t{}\t{}'.format(fqdn, hostname),
-        use_sudo=True)
+    if contains('/etc/hosts', '127.0.1.1'):
+        sed('/etc/hosts', '127\.0\.1\.1.*',
+            '127\.0\.1\.1\t{}\t{}'.format(fqdn, hostname),
+            use_sudo=True)
+    else:
+        append('/etc/hosts', '127.0.1.1\t{}\t{}'.format(fqdn, hostname),
+               use_sudo=True)
     sudo('echo {} >/etc/hostname'.format(hostname))
     # activate the hostname
     sudo('hostname -F /etc/hostname')
@@ -241,6 +258,7 @@ def secure_sshd():
     # TODO make sure these line exists
     # PermitEmptyPasswords no
     # PermitRootLogin without-password
+    # UseDNS no
     pass
 
 
