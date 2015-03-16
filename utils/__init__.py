@@ -110,7 +110,7 @@ def listdir_fullpath(path):
 
 def is_installed(package):
     with settings(ok_ret_codes=(0, 1)):
-        output = run('dpkg-query -p {}'.format(package), quiet=True)
+        output = run('dpkg-query -s {}'.format(package), quiet=True)
     if output.return_code == 0:
         return True
     else:
