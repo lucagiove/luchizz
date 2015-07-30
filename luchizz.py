@@ -233,11 +233,6 @@ def setup_shorewall_one_interface():
         print("skip, shorewall is already installed!")
 
 
-# ~def setup_denyhosts():
-    # ~# FIXME not in ubuntu 14.04??
-    # ~sudo('apt-get install denyhosts')
-
-
 def setup_etckeeper():
     if not is_installed('etckeeper'):
         sudo('apt-get install git etckeeper -y')
