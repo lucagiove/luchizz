@@ -52,8 +52,8 @@ from utils import query_yes_no, check_root, print_splash, listdir_fullpath
 from utils import is_installed
 
 __author__ = "Luca Giovenzana <luca@giovenzana.org>"
-__date__ = "2015-03-05"
-__version__ = "0.0.8dev"
+__date__ = "2015-08-13"
+__version__ = "0.0.9dev"
 
 # Luchizz script folder
 LUCHIZZ_DIR = os.path.dirname(os.path.realpath(__file__))
@@ -65,7 +65,7 @@ LUCHIZZ_DIR = os.path.dirname(os.path.realpath(__file__))
 # TODO clean the list of task shown by fab
 # TODO print warning on user rename or change also sudoers
 # TODO support line editing for read string
-# TODO test on 12.04 and 14.10
+# TODO test on 12.04 (16-03-2015 -> OK) and 14.10
 # TODO improve a real debug/verbose/normal mode
 # TODO refactor python file structure to split more
 # TODO detect luchizz version for the bash-profile and update
