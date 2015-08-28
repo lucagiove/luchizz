@@ -52,34 +52,38 @@ from utils import query_yes_no, check_root, print_splash, listdir_fullpath
 from utils import is_installed
 
 __author__ = "Luca Giovenzana <luca@giovenzana.org>"
-__date__ = "2015-08-13"
-__version__ = "0.0.9dev"
+__date__ = "2015-08-28"
+__version__ = "0.0.10beta1"
 
 # Luchizz script folder
 LUCHIZZ_DIR = os.path.dirname(os.path.realpath(__file__))
 
-# #### future
+# #### future / features
 # TODO fix locale error
+# TODO setup rkhunter
+# TODO setup sshd security
+# TODO setup mail notification
 
-# #### version 0.1
-# TODO clean the list of task shown by fab
+# #### version 0.2
 # TODO print warning on user rename or change also sudoers
 # TODO support line editing for read string
-# TODO test on 12.04 (16-03-2015 -> OK) and 14.10
 # TODO improve a real debug/verbose/normal mode
-# TODO refactor python file structure to split more
 # TODO detect luchizz version for the bash-profile and update
 # TODO change to argparse
 
-# #### version 0.0.x
+# #### version 0.1
+# TODO create setup
+# TODO setup travis
+# TODO refactor python file structure to split more (maybe tasks.py will solve
+# also the below issue)
+# TODO clean the list of task shown by fab
+# TODO test on 12.04 (16-03-2015 -> OK) and 14.10
+
+# #### KNOWN ISSUES
 # FIXME handle apt-get update somehow
 # FIXME handle returncode 1 in case of NO answer to apt-get
 # FIXME handle stdout/err redirection
 # FIXME see why doesn't work on raspbmc (bec of motd always printed..)
-# TODO setup sshd security
-# TODO setup rkhunter
-# TODO setup mail notification
-# TODO add customized gitconfig file
 
 
 def set_fqdn(fqdn):
@@ -133,6 +137,13 @@ def set_authentication_keys():
             run('mkdir -p $HOME/.ssh')
             run('touch $HOME/.ssh/authorized_keys')
             append('$HOME/.ssh/authorized_keys', id_ssh_file.rstrip('\n\r'))
+
+
+def set_gitconfig():
+    """If .gitconfig exists for the current user it will
+    transfer it remotely"""
+    gitconfig_path = os.path.join(os.getenv('HOME'), '.gitconfig')
+    put(gitconfig_path, '$HOME/.gitconfig', use_sudo=True)
 
 
 def set_disable_backports():
@@ -356,6 +367,13 @@ def main():
                     "authentication?", 'yes'):
         with quiet():
             set_authentication_keys()
+
+    # Copy .gitconfig
+    if os.path.isfile(os.path.join(os.getenv('HOME'), '.gitconfig')):
+        if query_yes_no("CONFIGURE .gitconfig file from the local user?",
+                        'yes'):
+            with quiet():
+                set_gitconfig()
 
     # Disable backports
     if query_yes_no("DISABLE backports repositories?", 'yes'):

@@ -35,3 +35,11 @@ physical_server:
     - smartmontools
     - util-linux
     - gdisk
+
+desktop:
+    - pidgin
+    - terminator
+    - synaptic
+    - remmina
+    - indicator-multiload
+    - network-manager-openvpn
