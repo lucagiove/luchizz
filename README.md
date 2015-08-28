@@ -51,7 +51,17 @@ Features
  
  **Install git configurations and useful aliases**
  
- If exists a local .gitconfig will push it remotely
+ If exists a local .gitconfig will push it remotely.
+ 
+ Useful configurations and aliases
+ - safe handlig of crlf
+ - push only the current branch
+ - fancy colours
+ - st = status
+ - co = checkout
+ - log = log --pretty --decorate
+ - hist = log --graph --pretty=format:'%Cred%h%Creset -%C(yellow)%d%Creset %s %Cgreen(%cr) %C(bold blue)<%an>%Creset' --abbrev-commit
+ and more..
 
 Credits
 -------
