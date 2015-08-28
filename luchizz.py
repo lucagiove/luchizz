@@ -127,10 +127,10 @@ def set_authentication_keys():
     ssh_path = os.path.join(os.getenv('HOME'), '.ssh/')
     ids_ssh = glob('{}id*.pub'.format(ssh_path))
     for id_ssh in ids_ssh:
-        f = open(id_ssh, 'r')
-        # reading the public key for anything after the key to get name and
-        # address that normally follow the key
-        id_ssh_file = f.read()
+        with open(id_ssh, 'r') as f:
+            # reading the public key for anything after the key to get name and
+            # address that normally follow the key
+            id_ssh_file = f.read()
         id_ssh_name = ' '.join(id_ssh_file.split()[2:])
         if query_yes_no("CONFIGURE {}'s ssh key for "
                         "authentication?".format(id_ssh_name), 'yes'):
@@ -144,6 +144,14 @@ def set_gitconfig():
     transfer it remotely"""
     gitconfig_path = os.path.join(os.getenv('HOME'), '.gitconfig')
     put(gitconfig_path, '$HOME/.gitconfig', use_sudo=True)
+
+
+def luchizz_gitconfig():
+    """Setup aliases and gitconfig useful default configurations"""
+    with open(os.path.join(LUCHIZZ_DIR, 'files/git_config_commands')) as f:
+        git_commands = f.read().split('\n')
+    for command in git_commands:
+        run(command)
 
 
 def set_disable_backports():
@@ -166,9 +174,8 @@ def luchizz_shell():
     global LUCHIZZ_DIR
     luchizz_profile = os.path.join(LUCHIZZ_DIR,
                                    'files/profile/luchizz-profile.sh')
-    f = open(luchizz_profile, 'r')
-    luchizz_profile = f.read()
-    f.close()
+    with open(luchizz_profile, 'r') as f:
+        luchizz_profile = f.read()
 
     # Installing default bash changes for newly created users
     # FIXME for what the hell is used this folder?
@@ -374,6 +381,11 @@ def main():
                         'yes'):
             with quiet():
                 set_gitconfig()
+
+    if query_yes_no("CONFIGURE do you want to luchizz the gitconfig for"
+                    "local user?", 'yes'):
+            with quiet():
+                luchizz_gitconfig()
 
     # Disable backports
     if query_yes_no("DISABLE backports repositories?", 'yes'):
