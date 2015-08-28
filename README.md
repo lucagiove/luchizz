@@ -30,13 +30,14 @@ Features
 **Quick packages deployment**
 
  Luchizz script has a default ``packages.yaml`` with categorized sections for
- packages to be installed. 
+ packages to be installed.
  List of common used packages can be easily extended and customized.
 
 **Extra commands**
 
  - ``z`` jump around shell script
  - ``detectip`` what's my ip command
+ - ``repo`` from http://source.android.com/source/downloading.html
 
 **Apt tuning**
 
@@ -47,11 +48,15 @@ Features
  
  For each ``.pub`` key in ``$HOME/.ssh`` will be prompted a request to copy the
  public certificate to the remote system ``authorized_key``.
+ 
+ **Install git configurations and useful aliases**
+ 
+ If exists a local .gitconfig will push it remotely
 
 Credits
 -------
 
-**Original authors for the shell version:**
+**Original authors for the bash version:**
 
 Luca Giovenzana - gpg key id: 3B741128  |  Pietro Isotti - gpg key id: A898630F
 
