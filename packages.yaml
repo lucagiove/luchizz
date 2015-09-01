@@ -42,6 +42,6 @@ desktop:
     - synaptic
     - remmina
     - indicator-multiload
-    - network-manager-openvpn
+    - network-manager-openvpn-gnome
     - ipython
     - python-pip
