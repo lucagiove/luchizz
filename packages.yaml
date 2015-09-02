@@ -45,3 +45,4 @@ desktop:
     - network-manager-openvpn-gnome
     - ipython
     - python-pip
+    - meld
