@@ -383,7 +383,7 @@ def main():
                 set_gitconfig()
 
     if query_yes_no("CONFIGURE do you want to luchizz the gitconfig for"
-                    "local user?", 'yes'):
+                    " local user?", 'yes'):
             with quiet():
                 luchizz_gitconfig()
 
