@@ -22,6 +22,7 @@ alias df='df -h'
 alias dt='du -sh'
 alias free='free -mt'
 alias errcho='>&2 echo'
+alias ack='ack-grep'
 
 # enable nice colors with ls and grep
 if [ "$TERM" != "dumb" ]; then

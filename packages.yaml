@@ -12,6 +12,7 @@ base:
     - acpid
     - tree
     - mc
+    - ack-grep
 
 net:
     - ethtool
