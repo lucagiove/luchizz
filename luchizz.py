@@ -59,7 +59,7 @@ __version__ = "0.0.13"
 LUCHIZZ_DIR = os.path.dirname(os.path.realpath(__file__))
 
 # #### future / features
-# TODO fix locale error
+# TODO fix locale error "sudo dpkg-reconfigure locales"
 # TODO setup rkhunter
 # TODO setup sshd security
 # TODO setup mail notification
