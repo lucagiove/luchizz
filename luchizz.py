@@ -201,7 +201,7 @@ def luchizz_shell():
         bashrc_file = os.path.join(u, '.bashrc')
         if not exists(bashrc_file, use_sudo=True):
             continue
-        sed(bashrc_file, 'HISTSIZE=.*', 'HISTIZE=1000000', use_sudo=True)
+        sed(bashrc_file, 'HISTSIZE=.*', 'HISTSIZE=1000000', use_sudo=True)
         sed(bashrc_file, 'HISTFILESIZE=.*', 'HISTFILESIZE=100000',
             use_sudo=True)
         if not contains(bashrc_file, 'luchizz'):
