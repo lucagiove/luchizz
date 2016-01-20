@@ -52,7 +52,7 @@ from utils import query_yes_no, check_root, print_splash, listdir_fullpath
 from utils import is_installed
 
 __author__ = "Luca Giovenzana <luca@giovenzana.org>"
-__date__ = "2016-01-11"
+__date__ = "2016-01-20"
 __version__ = "0.0.12dev"
 
 # Luchizz script folder
@@ -230,6 +230,14 @@ def luchizz_scripts():
     sudo('chmod 644 /usr/local/bin/z.sh')
 
 
+def setup_bash_git_prompt():
+    global LUCHIZZ_DIR
+    bash_git_dir = os.path.join(LUCHIZZ_DIR, 'files/bash-git-prompt')
+    put(bash_git_dir, '/usr/local/lib', use_sudo=True)
+    sudo('chown root: -R /usr/local/lib/bash-git-prompt')
+    sudo('chmod 755 /usr/local/lib/bash-git-prompt/{*.sh,*.py}')
+
+
 def setup_shorewall_one_interface():
     # WARNING UNSTABLE
     # FIXME network cut in case interface is not eth0 but em0 for instance :(
@@ -351,12 +359,12 @@ def main():
 
     # Setup etckeeper
     if not is_installed('etckeeper'):
-        if query_yes_no("SETUP etckeeper to track changes in /etc "
+        if query_yes_no("SETUP: etckeeper to track changes in /etc "
                         "using git?", 'yes'):
             setup_etckeeper()
 
     # Luchizz the shell
-    if query_yes_no("Do you want to `luchizz` root and all users "
+    if query_yes_no("CONFIGURE: do you want to `luchizz` root and all users "
                     "with a home folder in /home?", 'yes'):
         with quiet():
             luchizz_shell()
@@ -366,41 +374,46 @@ def main():
             sudo('etckeeper commit -m "luchizzed shell"')
 
     # Install luchizz scripts
-    if query_yes_no("INSTALL luchizz scripts in /usr/local/bin?", 'yes'):
+    if query_yes_no("INSTALL: luchizz scripts in /usr/local/bin?", 'yes'):
         with quiet():
             luchizz_scripts()
 
     # Copy ssh keys
-    if query_yes_no("CONFIGURE local ssh keys as authorized for "
+    if query_yes_no("CONFIGURE: local ssh keys as authorized for "
                     "authentication?", 'yes'):
         with quiet():
             set_authentication_keys()
 
     # Copy .gitconfig
     if os.path.isfile(os.path.join(os.getenv('HOME'), '.gitconfig')):
-        if query_yes_no("CONFIGURE .gitconfig file from the local user?",
+        if query_yes_no("COPY: .gitconfig file from the local user?",
                         'yes'):
             with quiet():
                 set_gitconfig()
 
-    if query_yes_no("CONFIGURE do you want to luchizz the gitconfig for"
-                    " local user?", 'yes'):
+    if query_yes_no("CONFIGURE: do you want to luchizz the .gitconfig for the "
+                    "current user?", 'yes'):
             with quiet():
                 luchizz_gitconfig()
 
+    if query_yes_no("INSTALL: bash-git-prompt extension in /usr/local/lib?",
+                    'yes'):
+            with quiet():
+                setup_bash_git_prompt()
+
     # Disable backports
-    if query_yes_no("DISABLE backports repositories?", 'yes'):
+    if query_yes_no("DISABLE: backports repositories?", 'yes'):
         with quiet():
             set_disable_backports()
 
     # Disable automatic installation of suggested and recommended packages
-    if query_yes_no("DISABLE automatic installation of recommended packages?",
+    if query_yes_no("DISABLE: automatic installation of recommended packages?",
                     'yes'):
         with quiet():
             set_disable_recommended()
 
     for pkg_section in packages.keys():
-        if query_yes_no("INSTALL {} packages?".format(pkg_section),
+        if query_yes_no("INSTALL: {} packages?".format(pkg_section),
                         'yes'):
             install_packages(packages[pkg_section])
 
