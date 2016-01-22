@@ -13,6 +13,7 @@ base:
     - tree
     - mc
     - ack-grep
+    - telnet
 
 net:
     - ethtool
