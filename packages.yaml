@@ -21,7 +21,7 @@ net:
     - iputils-arping
     - iftop
     - iptraf
-    - iperf
+    - iperf3
     - bmon
     - tcpdump
     - nmap
