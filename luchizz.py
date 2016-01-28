@@ -191,7 +191,7 @@ def luchizz_shell():
         append('/etc/skel/.bashrc', luchizz_profile, use_sudo=True)
     # Set huge history for newly created users
     sed('/etc/skel/.bashrc', 'HISTSIZE=.*', 'HISTSIZE=1000000', use_sudo=True)
-    sed('/etc/skel/.bashrc', 'HISTFILESIZE=.*', 'HISTFILESIZE=100000',
+    sed('/etc/skel/.bashrc', 'HISTFILESIZE=.*', 'HISTFILESIZE=1000000',
         use_sudo=True)
 
     # Appending bash changes to current users and root
@@ -202,7 +202,7 @@ def luchizz_shell():
         if not exists(bashrc_file, use_sudo=True):
             continue
         sed(bashrc_file, 'HISTSIZE=.*', 'HISTSIZE=1000000', use_sudo=True)
-        sed(bashrc_file, 'HISTFILESIZE=.*', 'HISTFILESIZE=100000',
+        sed(bashrc_file, 'HISTFILESIZE=.*', 'HISTFILESIZE=1000000',
             use_sudo=True)
         if not contains(bashrc_file, 'luchizz'):
             append(bashrc_file, luchizz_profile, use_sudo=True)
