@@ -21,7 +21,8 @@ net:
     - iputils-arping
     - iftop
     - iptraf
-    - iperf3
+    - iperf
+    # - iperf3 # 14.04 requires backport repositories
     - bmon
     - tcpdump
     - nmap
@@ -49,3 +50,4 @@ desktop:
     - python-pip
     - python-tk
     - meld
+    - gpm
