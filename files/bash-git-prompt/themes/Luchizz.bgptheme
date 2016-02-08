@@ -80,8 +80,8 @@ define_undefined_git_prompt_colors() {
   # _LAST_COMMAND_INDICATOR_ will be replaced by the appropriate GIT_PROMPT_COMMAND_OK OR GIT_PROMPT_COMMAND_FAIL
   if [ -z ${GIT_PROMPT_START_USER+x} ]; then GIT_PROMPT_START_USER="_LAST_COMMAND_INDICATOR_${ResetColor}"; fi
   if [ -z ${GIT_PROMPT_START_ROOT+x} ]; then GIT_PROMPT_START_ROOT="${GIT_PROMPT_START_USER}"; fi
-  if [ -z ${GIT_PROMPT_END_USER+x} ]; then GIT_PROMPT_END_USER=" \n${Yellow}${PathShort}${ResetColor} $ "; fi
-  if [ -z ${GIT_PROMPT_END_ROOT+x} ]; then GIT_PROMPT_END_ROOT=" \n${Yellow}${PathShort}${ResetColor} ${Red}#${ResetColor} "; fi
+  if [ -z ${GIT_PROMPT_END_USER+x} ]; then GIT_PROMPT_END_USER=" \n${ResetColor}${PS1}"; fi
+  if [ -z ${GIT_PROMPT_END_ROOT+x} ]; then GIT_PROMPT_END_ROOT=" \n${ResetColor}${PS1}"; fi
 
   # Please do not add colors to these symbols
   if [ -z ${GIT_PROMPT_SYMBOLS_AHEAD+x} ]; then GIT_PROMPT_SYMBOLS_AHEAD="↑·"; fi             # The symbol for "n versions ahead of origin"
