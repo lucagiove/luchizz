@@ -79,6 +79,7 @@ LUCHIZZ_DIR = os.path.dirname(os.path.realpath(__file__))
 # TODO clean the list of task shown by fab
 # TODO test on 12.04 (16-03-2015 -> OK) and 14.10
 # TODO add screenrc profile
+# TODO handle CTRL-C interrupt
 
 # #### KNOWN ISSUES
 # FIXME handle apt-get update somehow
