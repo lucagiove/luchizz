@@ -13,6 +13,7 @@ base:
     - tree
     - mc
     - ack-grep
+    - telnet
 
 net:
     - ethtool
@@ -21,6 +22,7 @@ net:
     - iftop
     - iptraf
     - iperf
+    # - iperf3 # 14.04 requires backport repositories
     - bmon
     - tcpdump
     - nmap
@@ -48,3 +50,4 @@ desktop:
     - python-pip
     - python-tk
     - meld
+    - gpm
