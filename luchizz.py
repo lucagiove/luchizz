@@ -16,10 +16,14 @@
 #  You should have received a copy of the GNU General Public License
 #  along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
+from tasks import *
+# XXX copied pasted import from luchizz to avoid import error clean up needed!!
+
 import os
 import sys
 import time
-from tasks import *
+import socket
+from glob import glob
 from optparse import OptionParser
 try:
     from fabric.api import run, sudo, put, env, settings
@@ -45,6 +49,7 @@ ImportError: Seems that PyYAML is not installed!
 # Luchizz library
 from utils import query_yes_no, check_root, print_splash, listdir_fullpath
 from utils import is_installed
+
 
 __author__ = "Luca Giovenzana <luca@giovenzana.org>"
 __date__ = "2016-04-07"
@@ -173,7 +178,7 @@ def main():
     if query_yes_no("CONFIGURE: local ssh keys as authorized for "
                     "authentication?", 'yes'):
         with quiet():
-            set_authentication_keys()
+            set_ssh_keys()
 
     # Copy .gitconfig
     if os.path.isfile(os.path.join(os.getenv('HOME'), '.gitconfig')):

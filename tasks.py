@@ -20,12 +20,38 @@
 #   ``setup`` install and configure services
 #   ``luchizz`` add nice customizations
 
+# XXX copied pasted import from luchizz to avoid import error clean up needed!!
+
+import os
+import sys
+import time
 import socket
 from glob import glob
-from fabric.api import run, sudo, put, env, settings
-from fabric.context_managers import show, quiet
-from fabric.contrib.files import sed, comment, append
-from fabric.contrib.files import uncomment, contains, exists
+from optparse import OptionParser
+try:
+    from fabric.api import run, sudo, put, env, settings
+    from fabric.state import output as fabric_output
+    from fabric.context_managers import show, quiet
+    from fabric.contrib.files import sed, comment, append
+    from fabric.contrib.files import uncomment, contains, exists
+except ImportError:
+    print """
+ImportError: Seems that fabric is not installed!
+             Try with `sudo pip install fabric`
+"""
+    sys.exit(1)
+try:
+    import yaml
+except ImportError:
+    print """
+ImportError: Seems that PyYAML is not installed!
+             Try with `sudo pip install pyyaml`
+"""
+    sys.exit(1)
+
+# Luchizz library
+from utils import query_yes_no, check_root, print_splash, listdir_fullpath
+from utils import is_installed
 
 def set_fqdn(fqdn):
 
@@ -61,20 +87,34 @@ def set_serial_console():
     sudo('chmod 644 /etc/init/ttyS0.conf')
 
 
-def set_authentication_keys():
-    """Loops in current user .ssh looking for certificates and ask which one
-    needs to be installed remotely"""
+def set_ssh_keys(ssh_keys_path=None, remove_all=False):
+    """Loops in a folder where public ssh kesys are stored looking for *.pub
+    files and ask which one needs to be installed remotely.
+    The default folder for ssh keys if not specified is ~/.ssh of current user
+    """
 
-    ssh_path = os.path.join(os.getenv('HOME'), '.ssh/')
-    ids_ssh = glob('{}id*.pub'.format(ssh_path))
+    if remove_all:
+        if query_yes_no("WARNING!! Are you sure to remove all the ssh keys?\n"
+                        "You might not be able to login anymore!",
+                        'yes'):
+            run('mkdir -p $HOME/.ssh')
+            run('cat /dev/null > $HOME/.ssh/authorized_keys')
+
+    if ssh_keys_path is None:
+        ssh_keys_path = os.path.join(os.getenv('HOME'), '.ssh/')
+    else:
+        ssh_keys_path = os.path.join(ssh_keys_path, '*.pub')
+    ids_ssh = glob(ssh_keys_path)
+    print ids_ssh
     for id_ssh in ids_ssh:
         with open(id_ssh, 'r') as f:
             # reading the public key for anything after the key to get name and
             # address that normally follow the key
             id_ssh_file = f.read()
         id_ssh_name = ' '.join(id_ssh_file.split()[2:])
-        if query_yes_no("CONFIGURE {}'s ssh key for "
-                        "authentication?".format(id_ssh_name), 'yes'):
+        if query_yes_no("CONFIGURE {}:{}'s ssh key for "
+                        "authentication?".format(os.path.basename(id_ssh),
+                                                 id_ssh_name), 'yes'):
             run('mkdir -p $HOME/.ssh')
             run('touch $HOME/.ssh/authorized_keys')
             append('$HOME/.ssh/authorized_keys', id_ssh_file.rstrip('\n\r'))
