@@ -110,6 +110,14 @@ APT::Install-Recommends "0";"""
     sudo("echo '{}' > /etc/apt/apt.conf.d/99luchizz".format(aptconf))
 
 
+def set_no_password_for_sudo():
+    """Sed the sudoers file removing the need of a password to run sudo
+    commands"""
+
+    default_sudo = "%sudo\tALL=\(ALL:ALL\) ALL"
+    sudo_nopass = "%sudo\tALL=(ALL:ALL) NOPASSWD: ALL"
+    sed('/etc/sudoers', default_sudo, sudo_nopass, use_sudo=True)
+
 def luchizz_shell():
     # Load the luchizz bashrc script
     global LUCHIZZ_DIR
