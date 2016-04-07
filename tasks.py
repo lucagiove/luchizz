@@ -132,7 +132,7 @@ def luchizz_shell():
         append('/etc/skel/.bashrc', luchizz_profile, use_sudo=True)
     # Set huge history for newly created users
     sed('/etc/skel/.bashrc', 'HISTSIZE=.*', 'HISTSIZE=1000000', use_sudo=True)
-    sed('/etc/skel/.bashrc', 'HISTFILESIZE=.*', 'HISTFILESIZE=100000',
+    sed('/etc/skel/.bashrc', 'HISTFILESIZE=.*', 'HISTFILESIZE=1000000',
         use_sudo=True)
 
     # Appending bash changes to current users and root
@@ -142,8 +142,8 @@ def luchizz_shell():
         bashrc_file = os.path.join(u, '.bashrc')
         if not exists(bashrc_file, use_sudo=True):
             continue
-        sed(bashrc_file, 'HISTSIZE=.*', 'HISTIZE=1000000', use_sudo=True)
-        sed(bashrc_file, 'HISTFILESIZE=.*', 'HISTFILESIZE=100000',
+        sed(bashrc_file, 'HISTSIZE=.*', 'HISTSIZE=1000000', use_sudo=True)
+        sed(bashrc_file, 'HISTFILESIZE=.*', 'HISTFILESIZE=1000000',
             use_sudo=True)
         if not contains(bashrc_file, 'luchizz'):
             append(bashrc_file, luchizz_profile, use_sudo=True)
@@ -168,6 +168,14 @@ def luchizz_scripts():
         sudo('chmod 755 {}'.format(s))
     # Restoring no execute permissions for z.sh that doesn't require them
     sudo('chmod 644 /usr/local/bin/z.sh')
+
+
+def setup_bash_git_prompt():
+    global LUCHIZZ_DIR
+    bash_git_dir = os.path.join(LUCHIZZ_DIR, 'files/bash-git-prompt')
+    put(bash_git_dir, '/usr/local/lib', use_sudo=True)
+    sudo('chown root: -R /usr/local/lib/bash-git-prompt')
+    sudo('chmod 755 /usr/local/lib/bash-git-prompt/{*.sh,*.py}')
 
 
 def setup_shorewall_one_interface():
