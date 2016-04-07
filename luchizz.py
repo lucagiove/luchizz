@@ -16,21 +16,15 @@
 #  You should have received a copy of the GNU General Public License
 #  along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-from tasks import *
-# XXX copied pasted import from luchizz to avoid import error clean up needed!!
 
 import os
 import sys
 import time
-import socket
-from glob import glob
 from optparse import OptionParser
 try:
-    from fabric.api import run, sudo, put, env, settings
+    from fabric.api import sudo, env, settings
     from fabric.state import output as fabric_output
-    from fabric.context_managers import show, quiet
-    from fabric.contrib.files import sed, comment, append
-    from fabric.contrib.files import uncomment, contains, exists
+    from fabric.context_managers import quiet
 except ImportError:
     print """
 ImportError: Seems that fabric is not installed!
@@ -47,8 +41,8 @@ ImportError: Seems that PyYAML is not installed!
     sys.exit(1)
 
 # Luchizz library
-from utils import query_yes_no, check_root, print_splash, listdir_fullpath
-from utils import is_installed
+from tasks import *
+from utils import query_yes_no, check_root, print_splash, is_installed
 
 
 __author__ = "Luca Giovenzana <luca@giovenzana.org>"

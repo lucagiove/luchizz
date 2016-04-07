@@ -20,18 +20,18 @@
 #   ``setup`` install and configure services
 #   ``luchizz`` add nice customizations
 
+# TODO add user task
+# sudo useradd libvirt -g libvirtd -m
+
 # XXX copied pasted import from luchizz to avoid import error clean up needed!!
 
 import os
 import sys
-import time
 import socket
 from glob import glob
-from optparse import OptionParser
 try:
-    from fabric.api import run, sudo, put, env, settings
-    from fabric.state import output as fabric_output
-    from fabric.context_managers import show, quiet
+    from fabric.api import run, sudo, put
+    from fabric.context_managers import show
     from fabric.contrib.files import sed, comment, append
     from fabric.contrib.files import uncomment, contains, exists
 except ImportError:
@@ -40,18 +40,13 @@ ImportError: Seems that fabric is not installed!
              Try with `sudo pip install fabric`
 """
     sys.exit(1)
-try:
-    import yaml
-except ImportError:
-    print """
-ImportError: Seems that PyYAML is not installed!
-             Try with `sudo pip install pyyaml`
-"""
-    sys.exit(1)
 
 # Luchizz library
-from utils import query_yes_no, check_root, print_splash, listdir_fullpath
-from utils import is_installed
+from utils import query_yes_no, is_installed, listdir_fullpath
+
+# Luchizz script folder
+LUCHIZZ_DIR = os.path.dirname(os.path.realpath(__file__))
+
 
 def set_fqdn(fqdn):
 
@@ -101,7 +96,7 @@ def set_ssh_keys(ssh_keys_path=None, remove_all=False):
             run('cat /dev/null > $HOME/.ssh/authorized_keys')
 
     if ssh_keys_path is None:
-        ssh_keys_path = os.path.join(os.getenv('HOME'), '.ssh/')
+        ssh_keys_path = os.path.join(os.getenv('HOME'), '.ssh/*.pub')
     else:
         ssh_keys_path = os.path.join(ssh_keys_path, '*.pub')
     ids_ssh = glob(ssh_keys_path)
@@ -157,6 +152,7 @@ def set_no_password_for_sudo():
     default_sudo = "%sudo\tALL=\(ALL:ALL\) ALL"
     sudo_nopass = "%sudo\tALL=(ALL:ALL) NOPASSWD: ALL"
     sed('/etc/sudoers', default_sudo, sudo_nopass, use_sudo=True)
+
 
 def luchizz_shell():
     # Load the luchizz bashrc script
