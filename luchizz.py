@@ -41,8 +41,11 @@ ImportError: Seems that PyYAML is not installed!
     sys.exit(1)
 
 # Luchizz library
-from tasks import *
 from utils import query_yes_no, check_root, print_splash, is_installed
+from tasks import (setup_etckeeper, luchizz_shell, luchizz_scripts,
+                   set_ssh_keys, set_gitconfig, luchizz_gitconfig,
+                   setup_bash_git_prompt, set_disable_backports,
+                   set_disable_recommended, install_packages)
 
 
 __author__ = "Luca Giovenzana <luca@giovenzana.org>"
@@ -68,10 +71,8 @@ LUCHIZZ_DIR = os.path.dirname(os.path.realpath(__file__))
 # #### version 0.1
 # TODO create setup
 # TODO setup travis
-# TODO refactor python file structure to split more (maybe tasks.py will solve
-# also the below issue)
 # TODO clean the list of task shown by fab
-# TODO test on 12.04 (16-03-2015 -> OK) and 14.10
+# TODO test on 12.04 (07-04-2016 -> OK) and 16.04
 # TODO add screenrc profile
 # TODO handle CTRL-C interrupt
 
@@ -206,11 +207,6 @@ def main():
         if query_yes_no("INSTALL: {} packages?".format(pkg_section),
                         'yes'):
             install_packages(packages[pkg_section])
-
-    # ~shorewall = query_yes_no("Do you want to install shorewall and setup "
-    # ~"as one interface server?""", 'no')
-    # ~if shorewall:
-    # ~setup_shorewall_one_interface()
 
     # Catch all commit for etckeeper
     # 127 return code is in case etckeeper is not installed won't fail
