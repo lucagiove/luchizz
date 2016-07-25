@@ -42,7 +42,7 @@ ImportError: Seems that PyYAML is not installed!
 
 # Luchizz library
 from utils import query_yes_no, check_root, print_splash, is_installed
-from tasks import (setup_etckeeper, luchizz_shell, luchizz_scripts,
+from tasks import (setup_etckeeper, luchizz_shell, luchizz_scripts,set_custom_motd,
                    set_ssh_keys, set_gitconfig, luchizz_gitconfig,
                    setup_bash_git_prompt, set_disable_backports,
                    set_disable_recommended, install_packages)
