@@ -4,11 +4,13 @@
 # luchizz-profile.sh (0.0.13)
 
 # colorized prompt
-if [ "`id -u`" -eq 0 ]; then
-    PS1='${debian_chroot:+($debian_chroot)}\[\033[01;31m\]\u@\h\[\033[00m\]:\[\033[01;34m\]\w\[\033[00m\]# '
-else
-    PS1='${debian_chroot:+($debian_chroot)}\[\033[01;37m\]\u@\h\[\033[00m\]:\[\033[01;34m\]\w\[\033[00m\]\$ '
-fi
+RS="\[\033[0m\]"    # reset
+HC="\[\033[1m\]"    # hicolor
+FYEL="\[\033[33m\]" # foreground yellow
+FPRP="\[\033[35m\]" # foreground purple
+FBLE="\[\033[34m\]" # foreground blue
+
+PS1="$HC$FYEL[ $FBLE${debian_chroot:+($debian_chroot)}\u$FPRP@\h$FYEL: $FBLE\w $FYEL]\\\$ $RS"
 
 # useful aliases
 alias rm='rm -i'
