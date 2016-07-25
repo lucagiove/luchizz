@@ -168,6 +168,12 @@ def main():
     if query_yes_no("INSTALL: luchizz scripts in /usr/local/bin?", 'yes'):
         with quiet():
             luchizz_scripts()
+            
+    # Install custom motd
+    
+    if query_yes_no("INSTALL: set custom motd?", 'yes'):
+        with quiet():
+            set_custom_motd()
 
     # Copy ssh keys
     if query_yes_no("CONFIGURE: local ssh keys as authorized for "
