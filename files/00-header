@@ -1,0 +1,6 @@
+#!/bin/sh
+#
+toilet --metal `uname -n` -f mono12 | sed 's/^.//'
+UPTIME=`uptime | sed 's/^.//'`
+printf "$UPTIME\n"
+printf "\n"
