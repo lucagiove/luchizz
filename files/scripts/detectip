@@ -50,7 +50,7 @@ def readip():
     page = StringIO.StringIO()
     if options.device:
         curl.setopt(pycurl.INTERFACE, options.device)
-    curl.setopt(pycurl.URL, "http://checkip.dyndns.org")
+    curl.setopt(pycurl.URL, "http://ipinfo.io/ip")
     # return an error after 5 http redirection
     curl.setopt(pycurl.MAXREDIRS, 5)
     page = StringIO.StringIO()
