@@ -1,0 +1,6 @@
+debconf-set-selections <<< "postfix postfix/main_mailer_type string Satellite system"
+debconf-set-selections <<< "postfix postfix/relayhost string {relay}"
+debconf-set-selections <<< "postfix postfix/mailname string {mailname}"
+apt-get install postfix -y
+// cp aliases
+newaliases
