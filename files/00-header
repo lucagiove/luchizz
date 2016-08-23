@@ -1,0 +1,7 @@
+#!/bin/sh
+#
+HOSTNAME=`uname -n | awk '{split($0,a,"-"); print a[2]}'`
+toilet --metal $HOSTNAME -f mono12 | sed 's/^.//'
+UPTIME=`uptime | sed 's/^.//'`
+printf "$UPTIME\n"
+printf "\n"
