@@ -52,6 +52,7 @@ from tasks import (setup_etckeeper,
                    setup_bash_git_prompt,
                    set_disable_backports,
                    set_disable_recommended,
+                   fix_perl_locale,
                    install_packages)
 
 
@@ -218,6 +219,13 @@ def main():
                     'yes'):
         with quiet():
             set_disable_recommended()
+
+    # Fix common perl locale error because LC_ALL is not set
+    if query_yes_no("FIX: common locale perl error by setting LC_ALL "
+                    "to en_US.UTF-8?",
+                    'yes'):
+        with quiet():
+            fix_perl_locale()
 
     for pkg_section in packages.keys():
         if query_yes_no("INSTALL: {} packages?".format(pkg_section),

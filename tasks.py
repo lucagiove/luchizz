@@ -263,9 +263,17 @@ def setup_etckeeper():
         print("skip, etckeeper is already installed!")
 
 
+def fix_perl_locale():
+    # XXX not sure 100% this fixes maybe variable has to be exported before
+    if not run('echo $LC_ALL'):
+        sed('/etc/default/locale', 'LC_ALL=.*', 'LC_ALL="en_US.UTF-8"',
+            use_sudo=True)
+        sudo('dpkg-reconfigure locales')
+
+
 # def setup_mail_notification():
     # if not is_installed('postfix'):
-        # sudo('apt-get install postfix -y')
+    #   sudo('apt-get install postfix -y')
 
 
 # def secure_sshd():
