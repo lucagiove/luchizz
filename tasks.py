@@ -75,16 +75,20 @@ def set_rename_user(olduser, newuser):
          "sed -i.bak -r -e 's/{}/{}/g' /etc/shadow"
          .format(olduser, newuser))
 
+
 def set_serial_console():
-    put('./files/ttyS0.conf', '/etc/init/', use_sudo=True)
+    terminal_path = os.path.join(LUCHIZZ_DIR, 'files/ttyS0.conf')
+    put(terminal_path, '/etc/init/', use_sudo=True)
     sudo('chown root: /etc/init/ttyS0.conf')
     sudo('chmod 644 /etc/init/ttyS0.conf')
-    
+
+
 def set_custom_motd():
-    put('./files/00-header', '/etc/update-motd.d/', use_sudo=True)
-    put('./files/01-sysinfo', '/etc/update-motd.d', use_sudo=True)
+    motd_files_path = os.path.join(LUCHIZZ_DIR, 'files/motd/*')
+    put(motd_files_path, '/etc/update-motd.d/', use_sudo=True)
     sudo('chown root: /etc/update-motd.d/*')
     sudo('chmod 755 /etc/update-motd.d/*')
+
 
 def set_ssh_keys(ssh_keys_path=None, remove_all=False):
     """Loops in a folder where public ssh kesys are stored looking for *.pub
@@ -259,17 +263,17 @@ def setup_etckeeper():
         print("skip, etckeeper is already installed!")
 
 
-# ~def setup_mail_notification():
-    # ~if not is_installed('ssmtp'):
-        # ~sudo('apt-get install ssmtp -y')
+# def setup_mail_notification():
+    # if not is_installed('postfix'):
+        # sudo('apt-get install postfix -y')
 
 
-def secure_sshd():
+# def secure_sshd():
     # TODO make sure these line exists
     # PermitEmptyPasswords no
     # PermitRootLogin without-password
     # UseDNS no
-    pass
+    # pass
 
 
 def install_packages(pkgs_list):

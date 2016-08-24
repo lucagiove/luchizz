@@ -42,14 +42,21 @@ ImportError: Seems that PyYAML is not installed!
 
 # Luchizz library
 from utils import query_yes_no, check_root, print_splash, is_installed
-from tasks import (setup_etckeeper, luchizz_shell, luchizz_scripts,set_custom_motd,
-                   set_ssh_keys, set_gitconfig, luchizz_gitconfig,
-                   setup_bash_git_prompt, set_disable_backports,
-                   set_disable_recommended, install_packages)
+from tasks import (setup_etckeeper,
+                   luchizz_shell,
+                   luchizz_scripts,
+                   set_ssh_keys,
+                   set_custom_motd,
+                   set_gitconfig,
+                   luchizz_gitconfig,
+                   setup_bash_git_prompt,
+                   set_disable_backports,
+                   set_disable_recommended,
+                   install_packages)
 
 
 __author__ = "Luca Giovenzana <luca@giovenzana.org>"
-__date__ = "2016-04-07"
+__date__ = "2016-08-24"
 __version__ = "0.1.0dev"
 
 # Luchizz script folder
@@ -66,6 +73,8 @@ LUCHIZZ_DIR = os.path.dirname(os.path.realpath(__file__))
 # TODO support line editing for read string
 # TODO improve a real debug/verbose/normal mode
 # TODO detect luchizz version for the bash-profile and update
+#      probably even better to use an external file to be included and replaced
+#      after every luchizz attempt
 # TODO change to argparse
 
 # #### version 0.1
@@ -74,6 +83,7 @@ LUCHIZZ_DIR = os.path.dirname(os.path.realpath(__file__))
 # TODO clean the list of task shown by fab
 # TODO test on 12.04 (07-04-2016 -> OK) and 16.04
 # TODO add screenrc profile
+# TODO add setup for mail notification
 # TODO handle CTRL-C interrupt
 
 # #### KNOWN ISSUES
@@ -168,18 +178,18 @@ def main():
     if query_yes_no("INSTALL: luchizz scripts in /usr/local/bin?", 'yes'):
         with quiet():
             luchizz_scripts()
-            
-    # Install custom motd
-    
-    if query_yes_no("INSTALL: set custom motd?", 'yes'):
-        with quiet():
-            set_custom_motd()
 
     # Copy ssh keys
     if query_yes_no("CONFIGURE: local ssh keys as authorized for "
                     "authentication?", 'yes'):
         with quiet():
             set_ssh_keys()
+
+    # Install custom motd scripts
+    if query_yes_no("CONFIGURE: do you want to customize the message of the"
+                    " day (motd)?", 'yes'):
+        with quiet():
+            set_custom_motd()
 
     # Copy .gitconfig
     if os.path.isfile(os.path.join(os.getenv('HOME'), '.gitconfig')):
