@@ -9,11 +9,13 @@ dpkg -s "mdadm" >/dev/null 2>&1 && {
         RAIDINFO=`cat /proc/mdstat | egrep "md|blocks"`
         printf "$RAIDINFO\n"
         echo "$SEPARATOR"
-    } 
+    }
 dpkg -s "libvirt-bin" >/dev/null 2>&1 && {
         virsh list
-    } 
+    }
 dpkg -s "docker-engine" >/dev/null 2>&1 && {
         docker ps
     }
 echo
+UPTIME=`uptime`
+printf "$UPTIME\n\n"

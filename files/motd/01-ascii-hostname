@@ -1,0 +1,4 @@
+#!/bin/sh
+if [ -x '/usr/bin/toilet' ]; then
+    toilet --metal `uname -n` -f mono9 -t
+fi
