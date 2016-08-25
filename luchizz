@@ -46,7 +46,7 @@ from tasks import (setup_etckeeper,
                    luchizz_shell,
                    luchizz_scripts,
                    set_ssh_keys,
-                   set_custom_motd,
+                   luchizz_motd,
                    set_gitconfig,
                    luchizz_gitconfig,
                    setup_bash_git_prompt,
@@ -190,7 +190,7 @@ def main():
     if query_yes_no("CONFIGURE: do you want to customize the message of the"
                     " day (motd)?", 'yes'):
         with quiet():
-            set_custom_motd()
+            luchizz_motd()
 
     # Copy .gitconfig
     if os.path.isfile(os.path.join(os.getenv('HOME'), '.gitconfig')):

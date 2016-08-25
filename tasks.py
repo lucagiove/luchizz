@@ -23,8 +23,6 @@
 # TODO add user task
 # sudo useradd libvirt -g libvirtd -m
 
-# XXX copied pasted import from luchizz to avoid import error clean up needed!!
-
 import os
 import sys
 import socket
@@ -83,11 +81,21 @@ def set_serial_console():
     sudo('chmod 644 /etc/init/ttyS0.conf')
 
 
-def set_custom_motd():
+def luchizz_motd():
+    """Restyle of the message of the day with useful informations"""
+
+    if not is_installed('toilet'):
+        sudo('apt-get install toilet -y')
+    if not is_installed('landscape-common'):
+        # this works only for ubuntu if not available nothing happens
+        with settings(ok_ret_codes=(0, 100)), quiet():
+            sudo('apt-get install landscape-common -y')
     motd_files_path = os.path.join(LUCHIZZ_DIR, 'files/motd/*')
     put(motd_files_path, '/etc/update-motd.d/', use_sudo=True)
     sudo('chown root: /etc/update-motd.d/*')
     sudo('chmod 755 /etc/update-motd.d/*')
+    # remove ubuntu help url in motd
+    sudo('rm -f /etc/update-motd.d/10-help-text')
 
 
 def set_ssh_keys(ssh_keys_path=None, remove_all=False):
