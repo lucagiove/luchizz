@@ -115,9 +115,8 @@ For sure you'll never connect to the wrong machine with the new hostname banner.
 
  This is what being in a git feature branch will look like:
 
- ``✔ [devel-0.1 ↓·1|✚ 3…1]``
-
- ``luca@elite:~/src/luchizz$``
+    ✔ [devel-0.1 ↓·1|✚ 3…1]
+    luca@elite:~/src/luchizz$ git ci -a 
 
 
 Credits
