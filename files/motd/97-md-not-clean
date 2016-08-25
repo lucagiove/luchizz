@@ -1,0 +1,12 @@
+#!/bin/sh
+
+if [ -x '/sbin/mdadm' ]; then
+    for md in `find /dev -maxdepth 1 -type b -name md*`; do
+    /sbin/mdadm --misc --test $md
+        if [ ! $? -eq 0 ]; then
+            echo "WARNING: $md RAID device is not clean"
+            echo "Run 'mdadm --detail $md' for more information."
+            echo ""
+        fi
+    done
+fi

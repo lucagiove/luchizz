@@ -28,7 +28,7 @@ import sys
 import socket
 from glob import glob
 try:
-    from fabric.api import run, sudo, put
+    from fabric.api import run, sudo, put, settings
     from fabric.context_managers import show
     from fabric.contrib.files import sed, comment, append
     from fabric.contrib.files import uncomment, contains, exists
@@ -88,7 +88,7 @@ def luchizz_motd():
         sudo('apt-get install toilet -y')
     if not is_installed('landscape-common'):
         # this works only for ubuntu if not available nothing happens
-        with settings(ok_ret_codes=(0, 100)), quiet():
+        with settings(ok_ret_codes=(0, 100)):
             sudo('apt-get install landscape-common -y')
     motd_files_path = os.path.join(LUCHIZZ_DIR, 'files/motd/*')
     put(motd_files_path, '/etc/update-motd.d/', use_sudo=True)
