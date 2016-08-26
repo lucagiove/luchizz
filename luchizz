@@ -20,11 +20,14 @@
 import os
 import sys
 import time
+import signal
 from optparse import OptionParser
 try:
     from fabric.api import sudo, env, settings
     from fabric.state import output as fabric_output
+    from fabric.state import connections
     from fabric.context_managers import quiet
+    from fabric.network import disconnect_all
 except ImportError:
     print """
 ImportError: Seems that fabric is not installed!
@@ -83,9 +86,9 @@ LUCHIZZ_DIR = os.path.dirname(os.path.realpath(__file__))
 # TODO setup travis
 # TODO clean the list of task shown by fab
 # TODO test on 12.04 (07-04-2016 -> OK) and 16.04
+# TODO run apt-get update only the first time
 # TODO add screenrc profile
 # TODO add setup for mail notification
-# TODO handle CTRL-C interrupt
 
 # #### KNOWN ISSUES
 # FIXME handle apt-get update somehow
@@ -93,8 +96,32 @@ LUCHIZZ_DIR = os.path.dirname(os.path.realpath(__file__))
 # FIXME handle stdout/err redirection
 # FIXME see why doesn't work on raspbmc (bec of motd always printed..)
 
+original_sigint = signal.getsignal(signal.SIGINT)
+
+
+# Handle CTRL-C interrupt nicely
+def ctrl_c_handler(sig, frame):
+    signal.signal(signal.SIGINT, original_sigint)
+    print "\nCTRL-C pressed exiting.."
+    if connections:
+        try:
+            etckeeper_commit("luchizz commit after CTRL-C has been pressed")
+            disconnect_all()
+        except:
+            pass
+    sys.exit(1)
+
+
+def etckeeper_commit(message):
+        # Catch all commit for etckeeper
+        # 127 return code is in case etckeeper is not installed won't fail
+        with settings(ok_ret_codes=(0, 1, 127)), quiet():
+            sudo('etckeeper commit -m "{}"'.format(message))
+
 
 def main():
+    signal.signal(signal.SIGINT, ctrl_c_handler)
+
     parser = OptionParser("usage: luchizz.py --host hosts [options]",
                           version="luchizz {}".format(__version__))
     parser.add_option("-H", "--hosts", dest="HOSTS",
@@ -232,11 +259,7 @@ def main():
                         'yes'):
             install_packages(packages[pkg_section])
 
-    # Catch all commit for etckeeper
-    # 127 return code is in case etckeeper is not installed won't fail
-    with settings(ok_ret_codes=(0, 1, 127)), quiet():
-        sudo('etckeeper commit -m "final luchizz commit"')
-
+    etckeeper_commit("final luchizz commit")
     print "\nluchizz done"
     return 0
 
