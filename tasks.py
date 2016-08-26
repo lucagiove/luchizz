@@ -89,10 +89,12 @@ def set_serial_console():
 def luchizz_motd():
     """Restyle of the message of the day with useful informations"""
     if not utils.is_installed('toilet'):
+        utils.apt_get_update()
         sudo('apt-get install toilet -y')
     if not utils.is_installed('landscape-common'):
         # this works only for ubuntu if not available nothing happens
         with settings(ok_ret_codes=(0, 100)):
+            utils.apt_get_update()
             sudo('apt-get install landscape-common -y')
     motd_files_path = os.path.join(LUCHIZZ_DIR, 'files/motd/*')
     put(motd_files_path, '/etc/update-motd.d/', use_sudo=True)
@@ -153,6 +155,7 @@ def set_disable_backports():
     """Disable backport repositories from apt configuration"""
     # FIXME avoid multiple # to be added if executed multiple times
     comment('/etc/apt/sources.list', '.+-backports', use_sudo=True)
+    utils.apt_get_update(True)
 
 
 def set_disable_recommended():
@@ -249,6 +252,7 @@ def setup_shorewall_one_interface():
     # FIXME network cut in case interface is not eth0 but em0 for instance :(
     # TODO maybe is better to install also conntrack
     if not utils.is_installed('shorewall'):
+        utils.apt_get_update()
         sudo('apt-get install shorewall -y')
         sudo('cp /usr/share/doc/shorewall/examples/one-interface/* '
              '/etc/shorewall/')
@@ -269,6 +273,7 @@ def setup_shorewall_one_interface():
 def setup_etckeeper():
     """Setup etckeeper tool with git backend"""
     if not utils.is_installed('etckeeper'):
+        utils.apt_get_update()
         sudo('apt-get install git etckeeper -y')
         comment('/etc/etckeeper/etckeeper.conf', 'VCS="bzr"', use_sudo=True)
         uncomment('/etc/etckeeper/etckeeper.conf', 'VCS="git"', use_sudo=True)
@@ -289,6 +294,7 @@ def fix_perl_locale():
 
 # def setup_mail_notification():
     # if not utils.is_installed('postfix'):
+    #   utils.apt_get_update()
     #   sudo('apt-get install postfix -y')
 
 
@@ -302,6 +308,7 @@ def fix_perl_locale():
 
 def install_packages(pkgs_list):
     """Given a list of packages will install them"""
+    utils.apt_get_update()
     pkgs_string = ""
     for pkg in pkgs_list:
         pkgs_string += " {}".format(pkg)
