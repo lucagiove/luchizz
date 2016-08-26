@@ -52,7 +52,7 @@ from tasks import (setup_etckeeper,
                    luchizz_motd,
                    set_gitconfig,
                    luchizz_gitconfig,
-                   setup_bash_git_prompt,
+                   set_bash_git_prompt,
                    set_disable_backports,
                    set_disable_recommended,
                    fix_perl_locale,
@@ -67,10 +67,8 @@ __version__ = "0.1.0dev"
 LUCHIZZ_DIR = os.path.dirname(os.path.realpath(__file__))
 
 # #### future / features
-# TODO fix locale error
 # TODO setup rkhunter
 # TODO setup sshd security
-# TODO setup mail notification
 
 # #### version 0.2
 # TODO print warning on user rename or change also sudoers
@@ -80,18 +78,15 @@ LUCHIZZ_DIR = os.path.dirname(os.path.realpath(__file__))
 #      probably even better to use an external file to be included and replaced
 #      after every luchizz attempt
 # TODO change to argparse
+# TODO setup mail notification
 
 # #### version 0.1
 # TODO create setup
-# TODO setup travis
-# TODO clean the list of task shown by fab
 # TODO test on 12.04 (07-04-2016 -> OK) and 16.04
 # TODO run apt-get update only the first time
 # TODO add screenrc profile
-# TODO add setup for mail notification
 
 # #### KNOWN ISSUES
-# FIXME handle apt-get update somehow
 # FIXME handle returncode 1 in case of NO answer to apt-get
 # FIXME handle stdout/err redirection
 # FIXME see why doesn't work on raspbmc (bec of motd always printed..)
@@ -234,7 +229,7 @@ def main():
     if query_yes_no("INSTALL: bash-git-prompt extension in /usr/local/lib?",
                     'yes'):
             with quiet():
-                setup_bash_git_prompt()
+                set_bash_git_prompt()
 
     # Disable backports
     if query_yes_no("DISABLE: backports repositories?", 'yes'):
