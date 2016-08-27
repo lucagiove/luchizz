@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 #
-#  Copyright (C) 2014-2015 Luca Giovenzana <luca@giovenzana.org>
+#  Copyright (C) 2014-2016 Luca Giovenzana <luca@giovenzana.org>
 #
 #  This program is free software: you can redistribute it and/or modify
 #  it under the terms of the GNU General Public License as published by
@@ -28,7 +28,6 @@ import os
 import sys
 import socket
 import glob
-import utils
 
 try:
     from fabric.api import run, sudo, put, settings
@@ -41,6 +40,8 @@ ImportError: Seems that fabric is not installed!
              Try with `sudo pip install fabric`
 """
     sys.exit(1)
+
+import utils
 
 # Luchizz script folder
 LUCHIZZ_DIR = os.path.dirname(os.path.realpath(__file__))
