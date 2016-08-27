@@ -64,35 +64,15 @@ from tasks import (setup_etckeeper,
 
 
 __author__ = "Luca Giovenzana <luca@giovenzana.org>"
-__date__ = "2016-08-24"
-__version__ = "0.1.0dev"
+__date__ = "2016-08-27"
+__version__ = "0.1.0-beta1"
 
 # Luchizz script folder
 LUCHIZZ_DIR = os.path.dirname(os.path.realpath(__file__))
 
-# #### future / features
-# TODO setup rkhunter
-# TODO setup sshd security
-
-# #### version 0.2
-# TODO print warning on user rename or change also sudoers
-# TODO support line editing for read string
-# TODO improve a real debug/verbose/normal mode
-# TODO detect luchizz version for the bash-profile and update
-#      probably even better to use an external file to be included and replaced
-#      after every luchizz attempt
-# TODO change to argparse
-# TODO setup mail notification
-
-# #### version 0.1
-# TODO create setup
-# TODO test on 12.04 (07-04-2016 -> OK) and 16.04
-# TODO add screenrc profile
-
 # #### KNOWN ISSUES
 # FIXME handle returncode 1 in case of NO answer to apt-get
 # FIXME handle stdout/err redirection
-# FIXME see why doesn't work on raspbmc (bec of motd always printed..)
 
 original_sigint = signal.getsignal(signal.SIGINT)
 
