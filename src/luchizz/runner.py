@@ -44,28 +44,25 @@ ImportError: Seems that PyYAML is not installed!
     sys.exit(1)
 
 # Luchizz library
-from utils import (query_yes_no,
-                   check_root,
-                   print_splash,
-                   is_installed,
-                   etckeeper_commit)
-from tasks import (setup_etckeeper,
-                   luchizz_shell,
-                   luchizz_scripts,
-                   set_ssh_keys,
-                   luchizz_motd,
-                   set_gitconfig,
-                   luchizz_gitconfig,
-                   set_bash_git_prompt,
-                   set_disable_backports,
-                   set_disable_recommended,
-                   fix_perl_locale,
-                   install_packages)
+from luchizz import __version__
+from luchizz.utils import (query_yes_no,
+                           check_root,
+                           print_splash,
+                           is_installed,
+                           etckeeper_commit)
+from luchizz.tasks import (setup_etckeeper,
+                           luchizz_shell,
+                           luchizz_scripts,
+                           set_ssh_keys,
+                           luchizz_motd,
+                           set_gitconfig,
+                           luchizz_gitconfig,
+                           set_bash_git_prompt,
+                           set_disable_backports,
+                           set_disable_recommended,
+                           fix_perl_locale,
+                           install_packages)
 
-
-__author__ = "Luca Giovenzana <luca@giovenzana.org>"
-__date__ = "2016-08-24"
-__version__ = "0.1.0beta1"
 
 # Luchizz script folder
 LUCHIZZ_DIR = os.path.dirname(os.path.realpath(__file__))
@@ -84,9 +81,8 @@ LUCHIZZ_DIR = os.path.dirname(os.path.realpath(__file__))
 # TODO setup mail notification
 # TODO add screenrc profile
 
-# #### version 0.1
-# TODO create setup
-# TODO test on 12.04 (07-04-2016 -> OK) and 16.04
+# #### version 0.2
+# TODO create setup (completely change structure)
 
 # #### KNOWN ISSUES
 # FIXME handle returncode 1 in case of NO answer to apt-get

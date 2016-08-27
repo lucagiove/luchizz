@@ -41,7 +41,7 @@ ImportError: Seems that fabric is not installed!
 """
     sys.exit(1)
 
-import utils
+from luchizz import utils
 
 # Luchizz script folder
 LUCHIZZ_DIR = os.path.dirname(os.path.realpath(__file__))
