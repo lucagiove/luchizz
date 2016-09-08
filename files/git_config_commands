@@ -6,6 +6,8 @@ git config --global core.safecrlf true
 git config --global alias.co checkout
 git config --global alias.st status
 git config --global alias.br branch
+git config --global alias.ci "commit --verbose"
+git config --global alias.commit "commit --verbose"
 git config --global alias.log "log --pretty --decorate"
 git config --global alias.hist "log --graph --pretty=format:'%Cred%h%Creset -%C(yellow)%d%Creset %s %Cgreen(%cr) %C(bold blue)<%an>%Creset' --abbrev-commit"
 git config --global alias.histdiff "log --graph --pretty=format:'%Cred%h%Creset -%C(yellow)%d%Creset %s %Cgreen(%cr) %C(bold blue)<%an>%Creset' --abbrev-commit -p"

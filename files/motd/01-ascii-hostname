@@ -1,0 +1,12 @@
+#!/bin/sh
+
+HOSTNAME=`uname -n`
+
+if [ -x '/usr/bin/toilet' ]; then
+    if [ ${#HOSTNAME} -gt 8 ]; then
+        font='mono9'
+    else
+        font='mono12'
+    fi
+    /usr/bin/toilet --metal $HOSTNAME -f $font -t
+fi

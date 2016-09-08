@@ -9,6 +9,8 @@ import sys
 from fabric.api import run, sudo, settings
 from fabric.context_managers import quiet
 
+_apt_updated = False
+
 
 def print_splash(version):
     print """
@@ -115,3 +117,20 @@ def is_installed(package):
         return True
     else:
         return False
+
+
+def etckeeper_commit(message):
+    # Catch all commit for etckeeper
+    # 127 return code is in case etckeeper is not installed won't fail
+    with settings(ok_ret_codes=(0, 1, 127)), quiet():
+        sudo('etckeeper commit -m "{}"'.format(message))
+
+
+def apt_get_update(force=False):
+    """Update the apt database only if never updated during the same execution
+    Force will always trigger an apt-get update.
+    """
+    global _apt_updated
+    if not _apt_updated or force:
+        sudo('apt-get update')
+        _apt_updated = True

@@ -1,10 +1,10 @@
 
 # START of luchizz bash enhancements
 # Copyright (C) 2014-2015 Luca Giovenzana <luca@giovenzana.org>
-# luchizz-profile.sh (0.0.13)
+# luchizz-profile.sh (0.1.0dev)
 
 # colorized prompt
-if [ "`id -u`" -eq 0 ]; then
+if [ $EUID -eq 0 ]; then
     PS1='${debian_chroot:+($debian_chroot)}\[\033[01;31m\]\u@\h\[\033[00m\]:\[\033[01;34m\]\w\[\033[00m\]# '
 else
     PS1='${debian_chroot:+($debian_chroot)}\[\033[01;37m\]\u@\h\[\033[00m\]:\[\033[01;34m\]\w\[\033[00m\]\$ '
@@ -75,4 +75,3 @@ if [ -f /usr/local/lib/bash-git-prompt/gitprompt.sh ]; then
     . /usr/local/lib/bash-git-prompt/gitprompt.sh
 fi
 # END of luchizz bash enhancements
-
