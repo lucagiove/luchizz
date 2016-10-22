@@ -18,11 +18,32 @@
 
 import os
 import sys
+from pkg_resources import Requirement, resource_filename
 from fabric.api import run, sudo, settings
 from fabric.context_managers import quiet
 
 _apt_updated = False
 
+
+def get_luchizz_conf_folder():
+    """Tries to get the proper luchizz configuration folder"""
+
+    home = os.path.expanduser("~")
+    luchizz_home = os.path.join(home, '.luchizz')
+
+    if os.path.isdir(luchizz_conf):
+        return luchizz_home
+    else:
+        luchizz_share = os.path.join(sys.pefix, 'share/luchizz')
+        if os.path.isdir(luchizz_share):
+            return luhizz_share
+        else:
+            luchizz_egg = resource_filename(Requirement.parse("luchizz"), "luchizz")
+            if os.path.isdir(luchizz_egg):
+                return luchizz_egg
+            else:
+                print """Error: cannot find any luchizz configuration"""
+                sys.exit(1)
 
 def print_splash(version):
     print """

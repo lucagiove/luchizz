@@ -43,9 +43,6 @@ ImportError: Seems that fabric is not installed!
 
 from luchizz import utils
 
-# Luchizz script folder
-LUCHIZZ_DIR = os.path.dirname(os.path.realpath(__file__))
-
 
 def set_fqdn(fqdn):
     """Properly configure a fully qualified domain name"""
