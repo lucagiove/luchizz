@@ -289,7 +289,8 @@ def fix_perl_locale():
     if not run('echo $LC_ALL'):
         sed('/etc/default/locale', 'LC_ALL=.*', 'LC_ALL="en_US.UTF-8"',
             use_sudo=True)
-        sudo('dpkg-reconfigure locales')
+        sudo('locale-gen en_US en_US.UTF-8')
+        sudo('dpkg-reconfigure locales --frontend noninteractive')
 
 
 # def setup_mail_notification():
