@@ -284,11 +284,14 @@ def setup_etckeeper():
 
 
 def fix_perl_locale():
-    """Fix the perl locale bug (experimental)"""
-    # XXX not sure 100% this fixes maybe variable has to be exported before
+    """Fix the perl locale bug"""
     if not run('echo $LC_ALL'):
-        sed('/etc/default/locale', 'LC_ALL=.*', 'LC_ALL="en_US.UTF-8"',
-            use_sudo=True)
+        if contains('/etc/default/locale', 'LC_ALL='):
+            sed('/etc/default/locale', 'LC_ALL=.*', 'LC_ALL="en_US.UTF-8"',
+                use_sudo=True)
+        else:
+            append('/etc/default/locale', 'LC_ALL="en_US.UTF-8"', use_sudo=True)
+
         sudo('locale-gen en_US en_US.UTF-8')
         sudo('dpkg-reconfigure locales --frontend noninteractive')
 
