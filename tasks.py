@@ -296,10 +296,34 @@ def fix_perl_locale():
         sudo('dpkg-reconfigure locales --frontend noninteractive')
 
 
-# def setup_mail_notification():
-    # if not utils.is_installed('postfix'):
-    #   utils.apt_get_update()
-    #   sudo('apt-get install postfix -y')
+def setup_mail_notification(admin_mail, sender_domain, relay):
+    """Setup postfix as satellite system to send root mails to the admin"""
+    # TODO more tests, so far tested on 14.04 only
+    if not utils.is_installed('postfix'):
+        sudo('debconf-set-selections <<< "postfix postfix/main_mailer_type '
+             'string Satellite system"')
+        sudo('debconf-set-selections <<< "postfix postfix/relayhost '
+             'string {relay}"'.format(relay=relay))
+        sudo('debconf-set-selections <<< "postfix postfix/mailname '
+             'string {mailname}"'.format(mailname=sender_domain))
+        utils.apt_get_update()
+        sudo('apt-get install postfix -y')
+    else:
+        sudo('echo "{mailname}" > /etc/mailname'.format(mailname=sender_domain))
+        sed('/etc/postfix/main.cf', '^relayhost.*',
+            'relayhost = {relay}'.format(relay=relay), use_sudo=True)
+        sudo('service postfix restart')
+    for line in open(os.path.join(LUCHIZZ_DIR,
+                                  'files/aliases')).read().split('\n'):
+        try:
+            if line.split()[0] == 'root:':
+                line = line.format(admin_mail=admin_mail)
+                sed('/etc/aliases', 'root:.*', line, use_sudo=True)
+            if not contains('/etc/aliases', line.split()[0]):
+                append('/etc/aliases', line, use_sudo=True)
+        except IndexError:
+            pass
+    sudo('newaliases')
 
 
 # def secure_sshd():

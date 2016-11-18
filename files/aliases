@@ -1,6 +1,4 @@
-# See man 5 aliases for format
 postmaster:    root
 www-data:      root
 mdadm:         root
 root:          {admin_mail}
-
