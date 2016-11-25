@@ -64,8 +64,8 @@ from tasks import (setup_etckeeper,
 
 
 __author__ = "Luca Giovenzana <luca@giovenzana.org>"
-__date__ = "2016-08-27"
-__version__ = "0.1.0-beta1"
+__date__ = "2016-11-25"
+__version__ = "0.1.1"
 
 # Luchizz script folder
 LUCHIZZ_DIR = os.path.dirname(os.path.realpath(__file__))

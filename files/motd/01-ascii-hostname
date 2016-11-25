@@ -8,5 +8,5 @@ if [ -x '/usr/bin/toilet' ]; then
     else
         font='mono12'
     fi
-    /usr/bin/toilet --metal $HOSTNAME -f $font -t
+    /usr/bin/toilet --metal $HOSTNAME -f $font -t -F crop
 fi
