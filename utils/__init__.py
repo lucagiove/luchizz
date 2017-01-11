@@ -134,3 +134,10 @@ def apt_get_update(force=False):
     if not _apt_updated or force:
         sudo('apt-get update')
         _apt_updated = True
+
+
+def which(command):
+    """Returns the full path of the command if available"""
+    with settings(ok_ret_codes=(0, 1)):
+        out = run('which {}'.format(command)).stdout
+    return out

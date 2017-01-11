@@ -84,6 +84,10 @@ def set_serial_console():
     put(terminal_path, '/etc/init/', use_sudo=True)
     sudo('chown root: /etc/init/ttyS0.conf')
     sudo('chmod 644 /etc/init/ttyS0.conf')
+    # If systemd is installed configure the serial console via systemctl
+    systemctl = utils.which('systemctl')
+    if systemctl:
+        sudo('{} enable serial-getty@ttyS0.service'.format(systemctl))
 
 
 def luchizz_motd():
