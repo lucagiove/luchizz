@@ -144,7 +144,9 @@ def set_ssh_keys(ssh_keys_path=None, remove_all=False):
 def set_gitconfig():
     """If .gitconfig exists for the current user it will transfer it remotely"""
     gitconfig_path = os.path.join(os.getenv('HOME'), '.gitconfig')
-    put(gitconfig_path, '$HOME/.gitconfig', use_sudo=True)
+    if os.path.isfile(gitconfig_path):
+        remote_home = run("echo $HOME").stdout
+        put(gitconfig_path, remote_home)
 
 
 def luchizz_gitconfig():

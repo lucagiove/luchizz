@@ -17,6 +17,7 @@ base:
     - update-notifier-common
     # this is needed for detect (in the future will be written in bash)
     - python-pycurl
+    - dnsutils
 
 net:
     - ethtool
