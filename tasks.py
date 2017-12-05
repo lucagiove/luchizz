@@ -252,28 +252,11 @@ def set_bash_git_prompt():
     sudo('chmod 755 /usr/local/lib/bash-git-prompt/{*.sh,*.py}')
 
 
-def setup_shorewall_one_interface():
-    """Setup shorewall to work with a single interface (experimental)"""
-    # WARNING UNSTABLE
-    # FIXME network cut in case interface is not eth0 but em0 for instance :(
-    # TODO maybe is better to install also conntrack
-    if not utils.is_installed('shorewall'):
-        utils.apt_get_update()
-        sudo('apt-get install shorewall -y')
-        sudo('cp /usr/share/doc/shorewall/examples/one-interface/* '
-             '/etc/shorewall/')
-        rules = """SSH(ACCEPT)         net             $FW"""
-        append('/etc/shorewall/rules', rules, use_sudo=True)
-        sed('/etc/default/shorewall', 'startup=0', 'startup=1', use_sudo=True)
-        sudo('/sbin/shorewall check')
-        try:
-            # BETTER TO ASK BEFORE TO PREVENT BEING CUT OFF
-            # ~sudo('/sbin/shorewall restart')
-            pass
-        except socket.error:
-            pass
-    else:
-        print("skip, shorewall is already installed!")
+def setup_ufw_ssh_only():
+    """Setup Uncomplicated Firewall to accept SSH only"""
+    sudo('apt-get install ufw')
+    sudo('ufw allow 22')
+    sudo('yes | ufw enable')
 
 
 def setup_etckeeper():
